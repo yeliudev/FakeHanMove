@@ -6,10 +6,10 @@ import requests
 url = 'http://client1.aipao.me/api/token/QM_Users/Login'
 
 
-def GetToken(url, datas=None):
+def GetToken(url, datas, auth):
     headers = {'Host': 'client1.aipao.me', 'Connection': 'keep-alive', 'Accept': '*/*', 'Version': 'B2.612',
                'User-Agent': 'HanMoves/2.16 (iPhone; iOS 11.0.3; Scale/3.00)', 'Accept-Language': 'zh-Hans-CN;q=1',
-               'Accept-Ecoding': 'gzip, deflate', 'auth': 'B0614F0DFE3D91AA7DF9E68319001C498'}
+               'Accept-Ecoding': 'gzip, deflate', 'auth': auth}
     response = requests.get(url, params=datas, headers=headers)
     json = response.json()
     print('\nTry getting token...Success: ' + str(json['Success']))
@@ -82,10 +82,10 @@ def StartRunning(Token, field):
         return 'failed'
 
 
-def StopRunning(Token, RunId, timecode, distancecode, stepnumcode):
+def StopRunning(Token, RunId, timecode, distancecode, stepnumcode, auth):
     headers = {'Host': 'client1.aipao.me', 'Accept-Ecoding': 'gzip, deflate', 'Accept': '*/*',
                'User-Agent': 'HanMoves/2.16 CFNetwork/887 Darwin/17.0.0', 'Accept-Language': 'zh-cn',
-               'auth': 'B8ADC6D198B742591154471EE8B47AF70', 'Connection': 'keep-alive'}
+               'auth': auth, 'Connection': 'keep-alive'}
     datas = {'S1': RunId, 'S2': 'tppp', 'S3': 'qooy', 'S4': timecode, 'S5': distancecode, 'S6': '', 'S7': '1',
              'S8': 'pqwertyuio', 'S9': stepnumcode}
     requestURL = 'http://client1.aipao.me/api/' + Token + '/QM_Runs/EndRunForSchool'
@@ -103,6 +103,9 @@ def StopRunning(Token, RunId, timecode, distancecode, stepnumcode):
 imei = input('\nIMEI code: ')
 if imei == 'default':
     imei = '766032a7ce6f4df2abc499bb2b79ecd0'
+elif imei == 'xzz':
+    imei = 'cb943d6fddef4f6892746b9d02a51d48'
+auth = input('auth: ')
 fieldcode = input('选择场地(1.桂园田径场 2.九一二操场 3.工学部体育场 4.信息学部竹园田径场 5.医学部杏林田径场): ')
 field = code2field(fieldcode)
 runningData = []
@@ -115,14 +118,15 @@ codedData['distance'] = ''.join(list(map(encode, runningData[1])))
 codedData['stepNum'] = ''.join(list(map(encode, runningData[2])))
 print('\nEncoding...\n' + 'pwd_table: ' + "'pqwertyuio'" + ' timecode: ' + "'" + codedData[
     'time'] + "'" + ' distancecode: ' + "'" + codedData[
-          'distance'] + "'" + ' valid: ' + "'1'")
+          'distance'] + "'" + ' stepnumcode: ' + "'" + codedData['stepNum'] + "'" + ' valid: ' + "'1'")
 
 requestDatas = imei2json(imei)
-Token = GetToken(url, requestDatas)
-if Token != 'failed':
-    RunId = StartRunning(Token, field)
+token = GetToken(url, requestDatas, auth)
+if token != 'failed':
+    RunId = StartRunning(token, field)
     if RunId != 'failed':
-        StopRunning(Token, RunId, codedData['time'], codedData['distance'], codedData['stepNum'])
+        StopRunning(token, RunId, codedData['time'], codedData['distance'],
+                    codedData['stepNum'], auth)
     else:
         print('获取RunId失败')
 else:
