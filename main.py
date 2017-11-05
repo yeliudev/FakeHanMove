@@ -124,6 +124,6 @@ if Token != 'failed':
     if RunId != 'failed':
         StopRunning(Token, RunId, codedData['time'], codedData['distance'], codedData['stepNum'])
     else:
-        print('Failed to get RunId')
+        print('获取RunId失败')
 else:
-    print('Failed to get token')
+    print('获取token失败')
