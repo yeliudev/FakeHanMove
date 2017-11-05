@@ -12,9 +12,8 @@ def GetToken(url, datas=None):
                'Accept-Ecoding': 'gzip, deflate', 'auth': 'B0614F0DFE3D91AA7DF9E68319001C498'}
     response = requests.get(url, params=datas, headers=headers)
     json = response.json()
-    print(response.request.headers)
-    print(response.headers)
-    print(json)
+    print('Success: '+json['Success'])
+    print('Token: ' + json['Data']['Token'])
     return json['Data']['Token']
 
 
