@@ -102,7 +102,7 @@ def StopRunning(Token, RunId, timecode, distancecode, stepnumcode, auth):
 
 imei = input('\nIMEI code: ')
 if imei == 'default':
-    imei = '766032a7ce6f4df2abc499bb2b79ecd0'
+    imei = '9b4e1cc3fae34dd59c76c947ca81b243'
 elif imei == 'xzz':
     imei = 'cb943d6fddef4f6892746b9d02a51d48'
 auth = input('auth: ')
