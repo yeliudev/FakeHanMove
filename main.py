@@ -69,7 +69,7 @@ def StopRunning(Token, RunId, timecode, distancecode):
                'User-Agent': 'HanMoves/2.16 CFNetwork/887 Darwin/17.0.0', 'Accept-Language': 'zh-cn',
                'auth': 'B8ADC6D198B742591154471EE8B47AF70', 'Connection': 'keep-alive'}
     datas = {'S1': RunId, 'S2': 'tppp', 'S3': 'qooy', 'S4': timecode, 'S5': distancecode, 'S6': '', 'S7': '1',
-             'S8': 'pqwertyuio', 'S9': 'pyr'}
+             'S8': 'pqwertyuio', 'S9': 'qoiy'}
     requestURL = 'http://client1.aipao.me/api/' + Token + '/QM_Runs/EndRunForSchool'
     response = requests.get(requestURL, params=datas, headers=headers)
     json = response.json()
