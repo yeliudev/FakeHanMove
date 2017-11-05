@@ -9,7 +9,7 @@ url = 'http://client1.aipao.me/api/token/QM_Users/Login'
 def GetToken(url, datas=None):
     headers = {'Host': 'client1.aipao.me', 'Connection': 'keep-alive', 'Accept': '*/*', 'Version': 'B2.612',
                'User-Agent': 'HanMoves/2.16 (iPhone; iOS 11.0.3; Scale/3.00)', 'Accept-Language': 'zh-Hans-CN;q=1',
-               'Accept-Ecoding': 'gzip, deflate', 'auth': 'B1B1135C4581F4A5C867698C60D72DAAE'}
+               'Accept-Ecoding': 'gzip, deflate', 'auth': 'B0614F0DFE3D91AA7DF9E68319001C498'}
     response = requests.get(url, params=datas, headers=headers)
     json = response.json()
     print(response.request.headers)
@@ -18,8 +18,8 @@ def GetToken(url, datas=None):
     return json['Data']['Token']
 
 
-def IMEI2JSON(IMEI):
-    return {'IMEICode': IMEI}
+def imei2json(imei):
+    return {'IMEICode': imei}
 
 
 def StartRunning(Token):
@@ -31,7 +31,7 @@ def StartRunning(Token):
     requestURL = 'http://client1.aipao.me/api/' + Token + '/QM_Runs/startRunForSchool'
     response = requests.get(requestURL, params=datas, headers=headers)
     json = response.json()
-    print('RunId' + json['Data']['RunId'])
+    print('RunId: ' + json['Data']['RunId'])
     return json['Data']['RunId']
 
 
@@ -39,8 +39,8 @@ def StopRunning(Token, RunId):
     headers = {'Host': 'client1.aipao.me', 'Accept-Ecoding': 'gzip, deflate', 'Accept': '*/*',
                'User-Agent': 'HanMoves/2.16 CFNetwork/887 Darwin/17.0.0', 'Accept-Language': 'zh-cn',
                'auth': 'B8ADC6D198B742591154471EE8B47AF70', 'Connection': 'keep-alive'}
-    datas = {'S1': RunId, 'S2': 'wyyy', 'S3': 'gddx', 'S4': 'dro', 'S5': 'oyyy', 'S6': None, 'S7': '1',
-             'S8': 'ygolnwprxd', 'S9': 'pyr'}
+    datas = {'S1': RunId, 'S2': 'tppp', 'S3': 'qooy', 'S4': 'otr', 'S5': 'wppp', 'S6': '', 'S7': '1',
+             'S8': 'pqwertyuio', 'S9': 'pyr'}
     requestURL = 'http://client1.aipao.me/api/' + Token + '/QM_Runs/EndRunForSchool'
     response = requests.get(requestURL, params=datas, headers=headers)
     json = response.json()
@@ -48,9 +48,10 @@ def StopRunning(Token, RunId):
     return json
 
 
-# IMEI = input('Please input your IMEI code:')
-IMEI = 'c06a0681feb54b3d899e3869ed22be2c'
-requestDatas = IMEI2JSON(IMEI)
+imei = input('Please input your IMEI code:')
+if imei == 'default':
+    imei = '766032a7ce6f4df2abc499bb2b79ecd0'
+requestDatas = imei2json(imei)
 Token = GetToken(url, requestDatas)
 RunId = StartRunning(Token)
 StopRunning(Token, RunId)
