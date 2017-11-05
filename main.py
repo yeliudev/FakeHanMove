@@ -17,7 +17,7 @@ def GetToken(url, datas=None):
         print('Token: ' + json['Data']['Token'])
         return json['Data']['Token']
     else:
-        return None
+        return 'failed'
 
 
 def imei2json(imei):
@@ -47,11 +47,29 @@ def encode(x):
         return 'o'
 
 
-def StartRunning(Token):
+def code2field(fieldcode):
+    gy = ['30.544342', '114.366888']  # 桂园田径场
+    ac = ['30.545102', '114.372494']  # 九一二操场
+    gc = ['30.549832', '114.374182']  # 工学部体育场
+    xc = ['30.534084', '114.367382']  # 信息学部竹园田径场
+    yxb = ['30.561585', '114.359509']  # 医学部杏林田径场
+    if fieldcode == '1':
+        return gy
+    if fieldcode == '2':
+        return ac
+    if fieldcode == '3':
+        return gc
+    if fieldcode == '4':
+        return xc
+    if fieldcode == '5':
+        return yxb
+
+
+def StartRunning(Token, field):
     headers = {'Host': 'client1.aipao.me', 'Accept': '*/*',
                'User-Agent': 'HanMoves/2.16 (iPhone; iOS 11.0.3; Scale/3.00)', 'Accept-Language': 'zh-Hans-CN;q=1',
                'Accept-Ecoding': 'gzip, deflate', 'Connection': 'keep-alive'}
-    datas = {'Lat': '30.542006', 'Lng': '114.367925', 'RunType': '1', 'RunMode': '1', 'FUserId': '0',
+    datas = {'Lat': field[0], 'Lng': field[1], 'RunType': '1', 'RunMode': '1', 'FUserId': '0',
              'Level_Length': '2000', 'IsSchool': '1'}
     requestURL = 'http://client1.aipao.me/api/' + Token + '/QM_Runs/startRunForSchool'
     response = requests.get(requestURL, params=datas, headers=headers)
@@ -61,15 +79,15 @@ def StartRunning(Token):
         print('RunId: ' + json['Data']['RunId'])
         return json['Data']['RunId']
     else:
-        return None
+        return 'failed'
 
 
-def StopRunning(Token, RunId, timecode, distancecode):
+def StopRunning(Token, RunId, timecode, distancecode, stepnumcode):
     headers = {'Host': 'client1.aipao.me', 'Accept-Ecoding': 'gzip, deflate', 'Accept': '*/*',
                'User-Agent': 'HanMoves/2.16 CFNetwork/887 Darwin/17.0.0', 'Accept-Language': 'zh-cn',
                'auth': 'B8ADC6D198B742591154471EE8B47AF70', 'Connection': 'keep-alive'}
     datas = {'S1': RunId, 'S2': 'tppp', 'S3': 'qooy', 'S4': timecode, 'S5': distancecode, 'S6': '', 'S7': '1',
-             'S8': 'pqwertyuio', 'S9': 'qoiy'}
+             'S8': 'pqwertyuio', 'S9': stepnumcode}
     requestURL = 'http://client1.aipao.me/api/' + Token + '/QM_Runs/EndRunForSchool'
     response = requests.get(requestURL, params=datas, headers=headers)
     json = response.json()
@@ -85,17 +103,27 @@ def StopRunning(Token, RunId, timecode, distancecode):
 imei = input('\nIMEI code: ')
 if imei == 'default':
     imei = '766032a7ce6f4df2abc499bb2b79ecd0'
+fieldcode = input('选择场地(1.桂园田径场 2.九一二操场 3.工学部体育场 4.信息学部竹园田径场 5.医学部杏林田径场): ')
+field = code2field(fieldcode)
 runningData = []
 codedData = {'time': '900', 'distance': '2000'}
 runningData.append(input('跑步时间（秒）: '))
 runningData.append(input('跑步里程（米）: '))
+runningData.append(input('步数: '))
 codedData['time'] = ''.join(list(map(encode, runningData[0])))
 codedData['distance'] = ''.join(list(map(encode, runningData[1])))
+codedData['stepNum'] = ''.join(list(map(encode, runningData[2])))
 print('\nEncoding...\n' + 'pwd_table: ' + "'pqwertyuio'" + ' timecode: ' + "'" + codedData[
     'time'] + "'" + ' distancecode: ' + "'" + codedData[
           'distance'] + "'" + ' valid: ' + "'1'")
 
 requestDatas = imei2json(imei)
 Token = GetToken(url, requestDatas)
-RunId = StartRunning(Token)
-StopRunning(Token, RunId, codedData['time'], codedData['distance'])
+if Token != 'failed':
+    RunId = StartRunning(Token, field)
+    if RunId != 'failed':
+        StopRunning(Token, RunId, codedData['time'], codedData['distance'], codedData['stepNum'])
+    else:
+        print('Failed to get RunId')
+else:
+    print('Failed to get token')
