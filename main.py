@@ -12,13 +12,39 @@ def GetToken(url, datas=None):
                'Accept-Ecoding': 'gzip, deflate', 'auth': 'B0614F0DFE3D91AA7DF9E68319001C498'}
     response = requests.get(url, params=datas, headers=headers)
     json = response.json()
-    print('Success: '+json['Success'])
-    print('Token: ' + json['Data']['Token'])
-    return json['Data']['Token']
+    print('\nTry getting token...Success: ' + json['Success'])
+    if json['Success'] == 'true':
+        print('Token: ' + json['Data']['Token'])
+        return json['Data']['Token']
+    else:
+        return None
 
 
 def imei2json(imei):
     return {'IMEICode': imei}
+
+
+def encode(x):
+    if x == '0':
+        return 'p'
+    if x == '1':
+        return 'q'
+    if x == '2':
+        return 'w'
+    if x == '3':
+        return 'e'
+    if x == '4':
+        return 'r'
+    if x == '5':
+        return 't'
+    if x == '6':
+        return 'y'
+    if x == '7':
+        return 'u'
+    if x == '8':
+        return 'i'
+    if x == '9':
+        return 'o'
 
 
 def StartRunning(Token):
@@ -30,27 +56,46 @@ def StartRunning(Token):
     requestURL = 'http://client1.aipao.me/api/' + Token + '/QM_Runs/startRunForSchool'
     response = requests.get(requestURL, params=datas, headers=headers)
     json = response.json()
-    print('RunId: ' + json['Data']['RunId'])
-    return json['Data']['RunId']
+    print('\nTry getting RunId...Success: ' + json['Success'])
+    if json['Success'] == 'true':
+        print('RunId: ' + json['Data']['RunId'])
+        return json['Data']['RunId']
+    else:
+        return None
 
 
-def StopRunning(Token, RunId):
+def StopRunning(Token, RunId, timecode, distancecode):
     headers = {'Host': 'client1.aipao.me', 'Accept-Ecoding': 'gzip, deflate', 'Accept': '*/*',
                'User-Agent': 'HanMoves/2.16 CFNetwork/887 Darwin/17.0.0', 'Accept-Language': 'zh-cn',
                'auth': 'B8ADC6D198B742591154471EE8B47AF70', 'Connection': 'keep-alive'}
-    datas = {'S1': RunId, 'S2': 'tppp', 'S3': 'qooy', 'S4': 'otr', 'S5': 'wppp', 'S6': '', 'S7': '1',
+    datas = {'S1': RunId, 'S2': 'tppp', 'S3': 'qooy', 'S4': timecode, 'S5': distancecode, 'S6': '', 'S7': '1',
              'S8': 'pqwertyuio', 'S9': 'pyr'}
     requestURL = 'http://client1.aipao.me/api/' + Token + '/QM_Runs/EndRunForSchool'
     response = requests.get(requestURL, params=datas, headers=headers)
     json = response.json()
-    print(json)
+    print('\nrequestURL: ' + requestURL)
+    print('received_json: ' + json)
+    if json['Success'] == 'true':
+        print('\n跑步数据成功上传')
+    else:
+        print('\n跑步数据上传失败，请重试')
     return json
 
 
-imei = input('Please input your IMEI code:')
+imei = input('\nIMEI code: ')
 if imei == 'default':
     imei = '766032a7ce6f4df2abc499bb2b79ecd0'
-requestDatas = imei2json(imei)
-Token = GetToken(url, requestDatas)
-RunId = StartRunning(Token)
-StopRunning(Token, RunId)
+runningData = []
+codedData = {'time': '900', 'distance': '2000'}
+runningData.append(input('跑步时间（秒）: '))
+runningData.append(input('跑步里程（米）: '))
+codedData['time'] = ''.join(list(map(encode, runningData[0])))
+codedData['distance'] = ''.join(list(map(encode, runningData[1])))
+print('\nEncoding...\n' + 'pwd_table: ' + "'pqwertyuio'" + ' timecode: ' + "'" + codedData[
+    'time'] + "'" + ' distancecode: ' + "'" + codedData[
+          'distance'] + "'" + ' valid: ' + "'1'")
+
+# requestDatas = imei2json(imei)
+# Token = GetToken(url, requestDatas)
+# RunId = StartRunning(Token)
+# StopRunning(Token, RunId,codedData['time'],codedData['distance'])
