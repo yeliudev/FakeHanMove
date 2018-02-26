@@ -2,34 +2,36 @@
 # -*- coding: utf-8 -*-
 
 import requests
+import time
+import random
 
 
 class HanMoveCracker(object):
 
-    def __init__(self, auth, token, imei, time, distance, stepNum, fieldCode):
-        self.auth = auth
+    def __init__(self, token, imei, distance, fieldCode):
         self.token = token
         self.imei = imei
+        self.runningTime = random.randint(540, 1140)
         self.RunId = ''
 
-        self.timeCode = ''.join(map(self.enc, time))
+        self.runningTimeCode = ''.join(map(self.enc, str(self.runningTime)))
         self.distanceCode = ''.join(map(self.enc, distance))
-        self.stepNumCode = ''.join(map(self.enc, stepNum))
+        self.stepNumCode = ''.join(map(self.enc, str(random.randint(1400, 3500))))
 
         if fieldCode == '1':
-            self.point = ['30.544342', '114.366888']  # 桂园田径场
+            self.location = ['30.544342', '114.366888']  # 桂园田径场
         if fieldCode == '2':
-            self.point = ['30.545102', '114.372494']  # 九一二操场
+            self.location = ['30.545102', '114.372494']  # 九一二操场
         if fieldCode == '3':
-            self.point = ['30.549832', '114.374182']  # 工学部体育场
+            self.location = ['30.549832', '114.374182']  # 工学部体育场
         if fieldCode == '4':
-            self.point = ['30.534084', '114.367382']  # 信息学部竹园田径场
+            self.location = ['30.534084', '114.367382']  # 信息学部竹园田径场
         if fieldCode == '5':
-            self.point = ['30.561585', '114.359509']  # 医学部杏林田径场
+            self.location = ['30.561585', '114.359509']  # 医学部杏林田径场
 
-        print('\nEncoding...\n' + 'pwd_table: ' + '\'pqwertyuio\'' + ' timeCode: \'' + self.timeCode +
-              '\'' + ' distanceCode: \'' + self.distanceCode + '\'' + ' stepNumCode: \'' + self.stepNumCode +
-              '\'' + ' valid: ' + '\'1\'')
+        print('\nEncoding data...\n' + 'pwd_table: ' + '\'pqwertyuio\'' + ' runningTimeCode: \'' +
+              self.runningTimeCode + '\'' + ' distanceCode: \'' + self.distanceCode + '\'' +
+              ' stepNumCode: \'' + self.stepNumCode + '\'' + ' location: ' + str(self.location))
 
     def enc(self, x):
         if x == '0':
@@ -57,8 +59,7 @@ class HanMoveCracker(object):
         url = 'http://client1.aipao.me/api/token/QM_Users/Login'
         headers = {'Host': 'client1.aipao.me', 'Connection': 'keep-alive', 'Accept': '*/*', 'Version': 'B2.162',
                    'User-Agent': 'HanMoves/2.16 (iPhone; iOS 11.2.6; Scale/3.00)',
-                   'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9',
-                   'Accept-Ecoding': 'gzip, deflate', 'auth': self.auth}
+                   'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9', 'Accept-Ecoding': 'gzip, deflate'}
         data = {'IMEICode': self.imei}
         print('\nTry getting token...Status: ', end='')
         try:
@@ -66,8 +67,8 @@ class HanMoveCracker(object):
             json = response.json()
             print('Success' if json['Success'] else 'Failed')
             if json['Success']:
-                print('Token: ' + json['Data']['token'])
-                self.token = json['Data']['token']
+                print('Token: ' + json['Data']['Token'])
+                self.token = json['Data']['Token']
                 return True
             else:
                 return False
@@ -81,9 +82,9 @@ class HanMoveCracker(object):
                    'User-Agent': 'HanMoves/2.16 (iPhone; iOS 11.2.6; Scale/3.00)',
                    'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9',
                    'Accept-Ecoding': 'gzip, deflate', 'Connection': 'keep-alive'}
-        datas = {'Lat': self.point[0], 'Lng': self.point[1], 'RunType': '1', 'RunMode': '1', 'FUserId': '0',
+        datas = {'Lat': self.location[0], 'Lng': self.location[1], 'RunType': '1', 'RunMode': '1', 'FUserId': '0',
                  'Level_Length': '2000', 'IsSchool': '1'}
-        print('\nTry starting running...Status: ', end='')
+        print('\nTry getting RunId...Status: ', end='')
         try:
             response = requests.get(url, params=datas, headers=headers)
             json = response.json()
@@ -101,11 +102,10 @@ class HanMoveCracker(object):
         url = 'http://client1.aipao.me/api/' + self.token + '/QM_Runs/EndRunForSchool'
         headers = {'Host': 'client1.aipao.me', 'Accept-Ecoding': 'gzip, deflate', 'Accept': '*/*',
                    'User-Agent': 'HanMoves/2.16 CFNetwork/887 Darwin/17.0.0',
-                   'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9',
-                   'auth': self.auth, 'Connection': 'keep-alive'}
-        datas = {'S1': self.RunId, 'S2': 'tppp', 'S3': self.distanceCode, 'S4': self.timeCode,
+                   'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9', 'Connection': 'keep-alive'}
+        datas = {'S1': self.RunId, 'S2': 'tppp', 'S3': self.distanceCode, 'S4': self.runningTimeCode,
                  'S5': self.distanceCode, 'S6': '', 'S7': '1', 'S8': 'pqwertyuio', 'S9': self.stepNumCode}
-        print('\nTry ending running...Status: ', end='')
+        print('\nTry uploading data...Status: ', end='')
         try:
             response = requests.get(url, params=datas, headers=headers)
             json = response.json()
@@ -122,21 +122,33 @@ class HanMoveCracker(object):
             return False
 
 
-auth = input('auth: ')
+wait = True
 imei = input('IMEI code: ')
 token = input('Token: ')
 fieldCode = input('选择场地（1.桂园田径场 2.九一二操场 3.工学部体育场 4.信息学部竹园田径场 5.医学部杏林田径场）: ')
-time = input('跑步时间（秒）: ')
-distance = input('跑步里程（米）: ')
-stepNum = input('步数: ')
-if imei == '':
+distance = input('跑步里程（单位：米 男生2000 女生1600）: ')
+if input('是否跳过跑步等待时间（1.是 2.否）：') == '1':
+    wait = False
+if imei == 'default':
     imei = 'ba5b8f1229db4e8db9a3f299a94c93c2'
 
-HMC = HanMoveCracker(auth, token, imei, time, distance, stepNum, fieldCode)
+HMC = HanMoveCracker(token, imei, distance, fieldCode)
 if HMC.token == '':
     if HMC.GetToken():
         if HMC.StartRunning():
+            if wait:
+                print('\nWaiting for end of running...')
+                time.sleep(HMC.runningTime + 1)
             HMC.EndRunning()
+        else:
+            print('\n获取RunId失败，请重试')
+    else:
+        print('\n获取Token失败，请重试')
 else:
     if HMC.StartRunning():
+        if wait:
+            print('\nWaiting for end of running...')
+            time.sleep(HMC.runningTime + 1)
         HMC.EndRunning()
+    else:
+        print('\n获取RunId失败，请重试')
