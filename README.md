@@ -12,7 +12,7 @@
 ## Keywords
 
 ### &emsp;auth
-&emsp;&emsp;位于 `Login` 和 `EndRunForSchool` 数据请求头中的签名，其中 `Login` 请求中可省略，加密方式暂时未知，猜测为 `'B' + MD5值`
+&emsp;&emsp;位于 `Login` 和 `EndRunForSchool` 数据请求头中的签名，其中 `Login` 请求中可省略，加密方式暂时未知，猜测为 `'B' + MD5值` 与上次登录的 token 有关
 
 ### &emsp;IMEI Code
 &emsp;&emsp;用于标记用户的字段，经测试抓包后长期有效
@@ -35,3 +35,5 @@
 
  1. 手机端打开汉姆运动并登录，使用 Fiddler 或 Charles 等工具对此过程抓包，获取登录请求头中的 `auth` 字段及请求数据中的 `Token` 和 `IMEICode` 字段
  2. 运行本工具，按提示输入相应内容，即可上传跑步数据
+ 
+ 注意：数据上传函数返回 `True` 不代表数据有效，请自行登录阳光体育服务平台查询数据有效性
