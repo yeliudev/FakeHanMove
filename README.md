@@ -12,13 +12,13 @@
 ## Keywords
 
 ### &emsp;auth
-&emsp;&emsp;位于 `Login` 和 `EndRunForSchool` 数据请求头中的签名，其中 `Login` 请求中可省略，加密方式暂时未知
+&emsp;&emsp;位于 `Login` 和 `EndRunForSchool` 数据请求头中的签名，其中 `Login` 请求中可省略，加密方式暂时未知，猜测为 `'B' + MD5值`
 
 ### &emsp;IMEI Code
 &emsp;&emsp;用于标记用户的字段，经测试抓包后长期有效
 
 ### &emsp;token
-&emsp;&emsp;用于用户登录的临时令牌，猜测生命周期为20min左右
+&emsp;&emsp;用于用户登录的临时令牌，由客户端发起 `Login` 请求获取，猜测生命周期为30min以上
 
 ## 已经实现的功能
 
