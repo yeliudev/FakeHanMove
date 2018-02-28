@@ -12,7 +12,7 @@ class HanMoveCracker(object):
         self.auth = auth
         self.token = token
         self.imei = imei
-        self.runningTime = random.randint(540, 1140)
+        self.runningTime = random.randint(540, 1020)
         self.RunId = ''
 
         self.runningTimeCode = ''.join(map(self.enc, str(self.runningTime)))
@@ -131,8 +131,6 @@ imei = input('IMEI code: ')
 token = input('Token: ')
 fieldCode = input('选择场地（1.桂园田径场 2.九一二操场 3.工学部体育场 4.信息学部竹园田径场 5.医学部杏林田径场）: ')
 distance = input('跑步里程（单位：米 男生2000 女生1600）: ')
-if input('是否跳过跑步等待时间（1.是 2.否）：') == '1':
-    wait = False
 if imei == 'default':
     imei = 'ba5b8f1229db4e8db9a3f299a94c93c2'
 elif imei == 'xzz':
