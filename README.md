@@ -37,3 +37,9 @@
  2. 运行本工具，按提示输入相应内容，即可上传跑步数据
  
  注意：数据上传函数返回 `True` 不代表数据有效，请自行登录阳光体育服务平台查询数据有效性
+
+## 软件截图
+
+<p align="center">
+  <img with="850" height="566" src="https://github.com/goolhanrry/FakeHanMove/blob/master/Screenshot/FakeHanMove_Screenshot.png" alt="screenshot">
+</p>
