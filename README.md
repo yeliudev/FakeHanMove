@@ -26,7 +26,7 @@
 * 自行选择跑步区域（桂园田径场、九一二操场、工学部体育场、信息学部竹园田径场、医学部杏林田径场）
 * 随机产生跑步时长（540～1020秒）
 * 随机产生步数（1400～3500步）
-* 强制等待跑步结束后再上传数据，即发起 `StartRunForSchool` 请求后等待 `runningTime + 1` 秒后发起 `EndRunForSchool` 请求
+* 强制等待跑步结束后再上传数据，即发起 `StartRunForSchool` 请求后等待 `runningTime + (1～3)` 秒后发起 `EndRunForSchool` 请求
 
 ## 即将实现的功能
 
