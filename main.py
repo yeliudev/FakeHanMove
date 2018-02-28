@@ -176,7 +176,7 @@ if input('是否随机生成跑步参数（1.是 2.否）: ') == '2':
 
 HMC = HanMoveCracker(auth, token, imei, distance, runningTime, stepNum, fieldCode)
 if HMC.StartRunning():
-    extraTime = random.randint(2, 4)
+    extraTime = random.randint(1, 3)
     print('\n', end='')
     for i in range(HMC.runningTime + extraTime):
         if HMC.runningTime + extraTime - i > 1:
