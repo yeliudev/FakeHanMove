@@ -16,8 +16,8 @@ class HanMoveCracker(object):
         self.nickname = 'unknown'
         self.power = 'unknown'
         self.distance = distance
-        self.runningTime = runningTime if runningTime else random.randint(540, 1020)
-        self.stepNum = stepNum if stepNum else random.randint(1400, 3500)
+        self.runningTime = int(runningTime) if runningTime else random.randint(540, 1020)
+        self.stepNum = int(stepNum) if stepNum else random.randint(1400, 3500)
         self.RunId = ''
 
         self.GetUsrInf(distance)
@@ -180,9 +180,9 @@ if HMC.StartRunning():
     print('\n', end='')
     for i in range(HMC.runningTime + extraTime):
         if HMC.runningTime + extraTime - i > 1:
-            print('\rWaiting for end of running...' + str(HMC.runningTime + extraTime - i) + ' seconds left', end='')
+            print('\rWaiting for end of running...' + str(HMC.runningTime + extraTime - i) + ' seconds left   ', end='')
         else:
-            print('\rWaiting for end of running...1 second left')
+            print('\rWaiting for end of running...1 second left ')
         time.sleep(1)
     HMC.StopRunning()
 else:
