@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import requests
+import datetime
 import time
 import random
 
@@ -16,19 +17,12 @@ class HanMoveCracker(object):
         self.nickname = 'unknown'
         self.power = 'unknown'
         self.distance = distance
-        self.runningTime = int(runningTime) if runningTime else random.randint(540, 1020)
-        self.stepNum = int(stepNum) if stepNum else random.randint(1400, 3500)
+        self.runningTime = int(runningTime)
+        self.stepNum = int(stepNum)
         self.RunId = ''
-
-        self.GetUsrInf(distance)
-        print('\nHello, ' + self.nickname + '  UserID: ' + self.UserID + '  sex: ' + (
-            'male' if self.distance == '2000' else 'female') + '  power: ' + self.power +
-              '  distance: ' + self.distance + 'm  runningTime: ' + str(self.runningTime) +
-              's  stepNum: ' + str(self.stepNum) + '\n\nEncoding data...')
-
-        self.distanceCode = ''.join(map(self.enc, self.distance))
-        self.runningTimeCode = ''.join(map(self.enc, str(self.runningTime)))
-        self.stepNumCode = ''.join(map(self.enc, str(self.stepNum)))
+        self.distanceCode = ''
+        self.runningTimeCode = ''
+        self.stepNumCode = ''
 
         if fieldCode == '1':
             self.location = ['30.544342', '114.366888']  # 桂园田径场
@@ -41,6 +35,15 @@ class HanMoveCracker(object):
         if fieldCode == '5':
             self.location = ['30.561585', '114.359509']  # 医学部杏林田径场
 
+    def RefreshData(self):
+        self.runningTime = random.randint(540, 1020)
+        self.stepNum = random.randint(1400, 3500)
+
+    def EncodeData(self):
+        print('\nEncoding data...')
+        self.distanceCode = ''.join(map(self.enc, self.distance))
+        self.runningTimeCode = ''.join(map(self.enc, str(self.runningTime)))
+        self.stepNumCode = ''.join(map(self.enc, str(self.stepNum)))
         print('pwd_table: ' + '\'pqwertyuio\'' + ' runningTimeCode: \'' + self.runningTimeCode + '\'' +
               ' distanceCode: \'' + self.distanceCode + '\'' + ' stepNumCode: \'' + self.stepNumCode +
               '\'' + ' location: ' + str(self.location))
@@ -66,6 +69,26 @@ class HanMoveCracker(object):
             return 'i'
         if x == '9':
             return 'o'
+
+    def Wait(self, hour, minute, second, nextDay=False):
+        if nextDay:
+            time_run = datetime.datetime.replace(datetime.datetime.now() + datetime.timedelta(days=1), hour=hour,
+                                                 minute=minute, second=second)
+        else:
+            time_run = datetime.datetime.replace(datetime.datetime.now(), hour=hour, minute=minute, second=second)
+        print('\n', end='')
+        while True:
+            delta = time_run - datetime.datetime.now()
+            if delta.total_seconds() <= 0:
+                print('\n', end='')
+                break
+            elif delta.total_seconds() > 1 and delta.total_seconds() <= 2:
+                print('\rWaiting for next running...1 second left ')
+            elif delta.total_seconds() <= 1:
+                print('\rWaiting for next running...0 second left')
+            else:
+                print('\rWaiting for next running...' + str(int(delta.total_seconds())) + ' seconds left', end='    ')
+            time.sleep(1)
 
     def GetToken(self):
         url = 'http://client1.aipao.me/api/token/QM_Users/Login'
@@ -106,6 +129,10 @@ class HanMoveCracker(object):
                 self.power = str(json['Data']['UserStatic']['Powers'])
                 if not hasDistance:
                     self.distance = '2000' if json['Data']['User']['Sex'] == '1' else '1600'
+                print('\nHello, ' + self.nickname + '  UserID: ' + self.UserID + '  sex: ' + (
+                    'male' if self.distance == '2000' else 'female') + '  power: ' + self.power +
+                      '  distance: ' + self.distance + 'm  runningTime: ' + str(self.runningTime) +
+                      's  stepNum: ' + str(self.stepNum))
                 return True
             else:
                 return False
@@ -161,6 +188,7 @@ class HanMoveCracker(object):
             return False
 
 
+doRefresh = True
 distance = ''
 runningTime = ''
 stepNum = ''
@@ -170,20 +198,34 @@ imei = input('IMEI code: ')
 token = input('Token: ')
 fieldCode = input('\n选择场地（1.桂园田径场 2.九一二操场 3.工学部体育场 4.信息学部竹园田径场 5.医学部杏林田径场）: ')
 if input('是否随机生成跑步参数（1.是 2.否）: ') == '2':
+    doRefresh = False
     distance = input('跑步里程（单位: 米 男2000 女1600）: ')
     runningTime = input('跑步时间（单位: 秒 0～1200）')
     stepNum = input('步数: ')
 
 HMC = HanMoveCracker(auth, token, imei, distance, runningTime, stepNum, fieldCode)
-if HMC.StartRunning():
-    extraTime = random.randint(1, 3)
-    print('\n', end='')
-    for i in range(HMC.runningTime + extraTime):
-        if HMC.runningTime + extraTime - i > 1:
-            print('\rWaiting for end of running...' + str(HMC.runningTime + extraTime - i) + ' seconds left   ', end='')
-        else:
-            print('\rWaiting for end of running...1 second left ')
-        time.sleep(1)
-    HMC.StopRunning()
-else:
-    print('\n获取RunId失败，请重试')
+
+if input('是否立即开始上传数据（1.是 2.否）: ') == '2':
+    HMC.Wait(7, random.randint(0, 15), random.randint(0, 59), nextDay=True)
+
+while True:
+    if doRefresh:
+        HMC.RefreshData()
+
+    HMC.GetUsrInf(HMC.distance)
+
+    if HMC.StartRunning():
+        extraTime = random.randint(1, 3)
+        print('\n', end='')
+        for i in range(HMC.runningTime + extraTime):
+            if HMC.runningTime + extraTime - i > 1:
+                print('\rWaiting for end of running...' + str(HMC.runningTime + extraTime - i) + ' seconds left   ',
+                      end='')
+            else:
+                print('\rWaiting for end of running...1 second left ')
+            time.sleep(1)
+        HMC.StopRunning()
+    else:
+        print('\n获取RunId失败，请重试')
+        break
+    HMC.Wait(7, random.randint(0, 15), random.randint(0, 59), nextDay=True)
