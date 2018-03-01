@@ -17,8 +17,8 @@ class HanMoveCracker(object):
         self.nickname = 'unknown'
         self.power = 'unknown'
         self.distance = distance
-        self.runningTime = int(runningTime)
-        self.stepNum = int(stepNum)
+        self.runningTime = int(runningTime) if runningTime else ''
+        self.stepNum = int(stepNum) if stepNum else ''
         self.RunId = ''
         self.distanceCode = ''
         self.runningTimeCode = ''
