@@ -72,12 +72,14 @@ class HanMoveCracker(object):
         if x == '9':
             return 'o'
 
-    def Wait(self, hour, minute, second, nextDay=False):
-        if nextDay:
+    def Wait(self, hour, minute, second):
+        delta = datetime.datetime.replace(datetime.datetime.now(), hour=hour, minute=minute,
+                                          second=second) - datetime.datetime.now()
+        if delta.total_seconds() > 0:
+            time_run = datetime.datetime.replace(datetime.datetime.now(), hour=hour, minute=minute, second=second)
+        else:
             time_run = datetime.datetime.replace(datetime.datetime.now() + datetime.timedelta(days=1), hour=hour,
                                                  minute=minute, second=second)
-        else:
-            time_run = datetime.datetime.replace(datetime.datetime.now(), hour=hour, minute=minute, second=second)
         print('\n', end='')
         while True:
             delta = time_run - datetime.datetime.now()
@@ -218,7 +220,7 @@ if input('是否随机生成跑步参数（1.是 2.否）: ') == '2':
 HMC = HanMoveCracker(imei, distance, runningTime, stepNum, fieldCode)
 
 if input('是否立即开始上传数据（1.是 2.否）: ') == '2':
-    HMC.Wait(7, random.randint(0, 15), random.randint(0, 59), nextDay=True)
+    HMC.Wait(7, random.randint(0, 15), random.randint(0, 59))
 
 while True:
     if doRefresh:
@@ -246,4 +248,4 @@ while True:
     else:
         print('\n获取token失败，请重试')
         break
-    HMC.Wait(7, random.randint(0, 15), random.randint(0, 59), nextDay=True)
+    HMC.Wait(7, random.randint(0, 15), random.randint(0, 59))
