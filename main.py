@@ -115,6 +115,25 @@ class HanMoveCracker(object):
             print('Connection lost')
             return False
 
+    def GetSignReward(self):
+        url = 'http://client1.aipao.me/api/' + self.token + '/QM_Users/GetSignReward'
+        headers = {'Host': 'client1.aipao.me', 'Accept': '*/*',
+                   'User-Agent': 'HanMoves/2.16 (iPhone; iOS 11.2.6; Scale/3.00)',
+                   'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9',
+                   'Accept-Ecoding': 'gzip, deflate', 'Connection': 'keep-alive'}
+        print('\nTry getting sign reward...Status: ', end='')
+        try:
+            response = requests.get(url, headers=headers)
+            json = response.json()
+            print('Success' if json['Success'] else 'Failed')
+            if json['Success']:
+                return True
+            else:
+                return False
+        except:
+            print('Connection lost')
+            return False
+
     def CreateAuth(self):
         print('\nTry creating auth...Status: ', end='')
         try:
@@ -229,6 +248,7 @@ while True:
         HMC.RefreshData()
 
     if HMC.GetToken():
+        HMC.GetSignReward()
         HMC.CreateAuth()
         HMC.GetUsrInf(HMC.distance)
         HMC.EncodeData()
