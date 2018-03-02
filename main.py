@@ -5,13 +5,13 @@ import requests
 import datetime
 import time
 import random
+import hashlib
 
 
 class HanMoveCracker(object):
 
-    def __init__(self, auth, token, imei, distance, runningTime, stepNum, fieldCode):
-        self.auth = auth
-        self.token = token
+    def __init__(self, imei, distance, runningTime, stepNum, fieldCode):
+        self.md5_imei = '5C9BC349A6B7AA00121E679ECF6313CE'  # 逆向iOS端汉姆运动获取，猜测与设备绑定
         self.imei = imei
         self.UserID = 'unknown'
         self.nickname = 'unknown'
@@ -19,6 +19,8 @@ class HanMoveCracker(object):
         self.distance = distance
         self.runningTime = int(runningTime) if runningTime else ''
         self.stepNum = int(stepNum) if stepNum else ''
+        self.auth = ''
+        self.token = ''
         self.RunId = ''
         self.distanceCode = ''
         self.runningTimeCode = ''
@@ -94,8 +96,7 @@ class HanMoveCracker(object):
         url = 'http://client1.aipao.me/api/token/QM_Users/Login'
         headers = {'Host': 'client1.aipao.me', 'Connection': 'keep-alive', 'Accept': '*/*', 'Version': 'B2.162',
                    'User-Agent': 'HanMoves/2.16 (iPhone; iOS 11.2.6; Scale/3.00)',
-                   'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9', 'Accept-Ecoding': 'gzip, deflate',
-                   'auth': self.auth}
+                   'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9', 'Accept-Ecoding': 'gzip, deflate'}
         data = {'IMEICode': self.imei}
         print('\nTry getting token...Status: ', end='')
         try:
@@ -110,6 +111,19 @@ class HanMoveCracker(object):
                 return False
         except:
             print('Connection lost')
+            return False
+
+    def CreateAuth(self):
+        print('\nTry creating auth...Status: ', end='')
+        try:
+            code = self.md5_imei + ':' + self.token
+            hl = hashlib.md5()
+            hl.update(code.encode(encoding='utf-8'))
+            self.auth = 'B' + hl.hexdigest().upper()
+            print('Success\nauth: ' + self.auth)
+            return True
+        except:
+            print('Failed')
             return False
 
     def GetUsrInf(self, hasDistance=False):
@@ -193,17 +207,15 @@ distance = ''
 runningTime = ''
 stepNum = ''
 
-auth = input('auth: ')
 imei = input('IMEI code: ')
-token = input('Token: ')
-fieldCode = input('\n选择场地（1.桂园田径场 2.九一二操场 3.工学部体育场 4.信息学部竹园田径场 5.医学部杏林田径场）: ')
+fieldCode = input('选择场地（1.桂园田径场 2.九一二操场 3.工学部体育场 4.信息学部竹园田径场 5.医学部杏林田径场）: ')
 if input('是否随机生成跑步参数（1.是 2.否）: ') == '2':
     doRefresh = False
     distance = input('跑步里程（单位: 米 男2000 女1600）: ')
     runningTime = input('跑步时间（单位: 秒 0～1200）')
     stepNum = input('步数: ')
 
-HMC = HanMoveCracker(auth, token, imei, distance, runningTime, stepNum, fieldCode)
+HMC = HanMoveCracker(imei, distance, runningTime, stepNum, fieldCode)
 
 if input('是否立即开始上传数据（1.是 2.否）: ') == '2':
     HMC.Wait(7, random.randint(0, 15), random.randint(0, 59), nextDay=True)
@@ -212,20 +224,26 @@ while True:
     if doRefresh:
         HMC.RefreshData()
 
-    HMC.GetUsrInf(HMC.distance)
+    if HMC.GetToken():
+        HMC.CreateAuth()
+        HMC.GetUsrInf(HMC.distance)
+        HMC.EncodeData()
 
-    if HMC.StartRunning():
-        extraTime = random.randint(1, 3)
-        print('\n', end='')
-        for i in range(HMC.runningTime + extraTime):
-            if HMC.runningTime + extraTime - i > 1:
-                print('\rWaiting for end of running...' + str(HMC.runningTime + extraTime - i) + ' seconds left   ',
-                      end='')
-            else:
-                print('\rWaiting for end of running...1 second left ')
-            time.sleep(1)
-        HMC.StopRunning()
+        if HMC.StartRunning():
+            extraTime = random.randint(1, 3)
+            print('\n', end='')
+            for i in range(HMC.runningTime + extraTime):
+                if HMC.runningTime + extraTime - i > 1:
+                    print('\rWaiting for end of running...' + str(HMC.runningTime + extraTime - i) + ' seconds left   ',
+                          end='')
+                else:
+                    print('\rWaiting for end of running...1 second left ')
+                time.sleep(1)
+            HMC.StopRunning()
+        else:
+            print('\n获取RunId失败，请重试')
+            break
     else:
-        print('\n获取RunId失败，请重试')
+        print('\n获取token失败，请重试')
         break
     HMC.Wait(7, random.randint(0, 15), random.randint(0, 59), nextDay=True)
