@@ -23,6 +23,7 @@
 ## 已经实现的功能
 
 * 获取用户信息，包括昵称、UserID、性别，并通过性别判定跑步里程
+* 每天自动领取签到奖励
 * 自行选择跑步区域（桂园田径场、九一二操场、工学部体育场、信息学部竹园田径场、医学部杏林田径场）
 * 随机产生跑步时长（540～1020秒）
 * 随机产生步数（1400～3500步）
@@ -43,5 +44,5 @@
 ## 软件截图
 
 <p align="center">
-  <img with="850" height="566" src="https://github.com/goolhanrry/FakeHanMove/blob/master/Screenshot/FakeHanMove_Screenshot.png" alt="screenshot">
+  <img with="860" height="580" src="https://github.com/goolhanrry/FakeHanMove/blob/master/Screenshot/FakeHanMove_Screenshot.png" alt="screenshot">
 </p>
