@@ -248,9 +248,9 @@ while True:
         HMC.RefreshData()
 
     if HMC.GetToken():
+        HMC.GetUsrInf(HMC.distance)
         HMC.GetSignReward()
         HMC.CreateAuth()
-        HMC.GetUsrInf(HMC.distance)
         HMC.EncodeData()
 
         if HMC.StartRunning():
