@@ -260,7 +260,7 @@ runningTime = ''
 stepNum = ''
 
 uuid = input('UUID: ')
-imei = input('IMEI code: ')
+imei = input('IMEI Code: ')
 fieldCode = input('选择场地（1.桂园田径场 2.九一二操场 3.工学部体育场 4.信息学部竹园田径场 5.医学部杏林田径场）: ')
 if input('是否随机生成跑步参数（1.是 2.否）: ') == '2':
     doRefresh = False
