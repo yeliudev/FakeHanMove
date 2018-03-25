@@ -10,18 +10,21 @@ import hashlib
 
 class HanMoveCracker(object):
 
-    def __init__(self, uuid, imei, distance, runningTime, stepNum, fieldCode):
+    def __init__(self, uuid, imei, score, distance, runningTime, stepNum, fieldCode):
         self.uuid = uuid
         self.imei = imei
         self.UserID = 'unknown'
         self.nickname = 'unknown'
         self.power = 'unknown'
+        self.diamonds = 0
+        self.score = score
         self.distance = distance
         self.runningTime = int(runningTime) if runningTime else ''
         self.stepNum = int(stepNum) if stepNum else ''
         self.auth = ''
         self.token = ''
         self.RunId = ''
+        self.scoreCode = ''
         self.distanceCode = ''
         self.runningTimeCode = ''
         self.stepNumCode = ''
@@ -43,12 +46,13 @@ class HanMoveCracker(object):
 
     def EncodeData(self):
         print('\nEncoding data...')
+        self.scoreCode = ''.join(map(self.enc, self.score))
         self.distanceCode = ''.join(map(self.enc, self.distance))
         self.runningTimeCode = ''.join(map(self.enc, str(self.runningTime)))
         self.stepNumCode = ''.join(map(self.enc, str(self.stepNum)))
-        print('pwd_table: ' + '\'pqwertyuio\'' + ' runningTimeCode: \'' + self.runningTimeCode + '\'' +
-              ' distanceCode: \'' + self.distanceCode + '\'' + ' stepNumCode: \'' + self.stepNumCode +
-              '\'' + ' location: ' + str(self.location))
+        print('pwd_table: ' + '\'pqwertyuio\'' + ' scoreCode: \'' + self.scoreCode + '\'' +
+              ' distanceCode: \'' + self.distanceCode + '\'' + ' runningTimeCode: \'' + self.runningTimeCode +
+              '\'' + ' stepNumCode: \'' + self.stepNumCode + '\'' + ' location: ' + str(self.location))
 
     def enc(self, x):
         if x == '0':
@@ -80,16 +84,16 @@ class HanMoveCracker(object):
         else:
             time_run = datetime.datetime.replace(datetime.datetime.now() + datetime.timedelta(days=1), hour=hour,
                                                  minute=minute, second=second)
-        print('\n', end='')
+        print('')
         while True:
             delta = time_run - datetime.datetime.now()
             if delta.total_seconds() <= 0:
                 print('\n', end='')
                 break
             elif delta.total_seconds() > 1 and delta.total_seconds() <= 2:
-                print('\rWaiting for next running...1 second left ')
+                print('\rWaiting for next running...1 second left', end=' ')
             elif delta.total_seconds() <= 1:
-                print('\rWaiting for next running...0 second left')
+                print('\rWaiting for next running...0 second left', end='')
             else:
                 print('\rWaiting for next running...' + str(int(delta.total_seconds())) + ' seconds left', end='    ')
             time.sleep(1)
@@ -134,6 +138,28 @@ class HanMoveCracker(object):
             print('Connection lost')
             return False
 
+    def BuyPower(self, numOfDiamonds):
+        url = 'http://client1.aipao.me/api/' + self.token + '/QM_User_Static/BuyPower'
+        headers = {'Host': 'client1.aipao.me', 'Accept': '*/*',
+                   'User-Agent': 'HanMoves/2.16 (iPhone; iOS 11.2.6; Scale/3.00)',
+                   'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9',
+                   'Accept-Ecoding': 'gzip, deflate', 'Connection': 'keep-alive'}
+        data = {'Power': str(numOfDiamonds)}
+        print('\nTry buying power...Status: ', end='')
+        try:
+            response = requests.get(url, params=data, headers=headers)
+            json = response.json()
+            print('Success' if json['Success'] else 'Failed')
+            if json['Success']:
+                print('Diamond: ' + str(json['Data']['Diamond']) + '  Power: ' + str(json['Data']['Power']))
+                return True
+            else:
+                print('Diamond not enough' if json['ErrCode'] == 6 else 'Unkonwn Error')
+                return False
+        except:
+            print('Connection lost')
+            return False
+
     def CreateAuth(self):
         print('\nTry creating auth...Status: ', end='')
         try:
@@ -163,12 +189,14 @@ class HanMoveCracker(object):
                 self.UserID = str(json['Data']['User']['UserID'])
                 self.nickname = json['Data']['User']['NickName']
                 self.power = str(json['Data']['UserStatic']['Powers'])
+                self.diamonds = json['Data']['UserStatic']['Diamonds']
                 if not hasDistance:
                     self.distance = '2000' if json['Data']['User']['Sex'] == '1' else '1600'
-                print('\nHello, ' + self.nickname + '  UserID: ' + self.UserID + '  sex: ' + (
-                    'male' if self.distance == '2000' else 'female') + '  power: ' + self.power +
-                      '  distance: ' + self.distance + 'm  runningTime: ' + str(self.runningTime) +
-                      's  stepNum: ' + str(self.stepNum))
+                    self.score = '5000' if self.distance == '2000' else '4000'
+                print('\nHello, ' + self.nickname + '  UserID: ' + self.UserID + '  Sex: ' + (
+                    'male' if self.distance == '2000' else 'female') + '  Power: ' + self.power +
+                      '  Diamonds: ' + str(self.diamonds) + '  distance: ' + self.distance +
+                      'm  runningTime: ' + str(self.runningTime) + 's  stepNum: ' + str(self.stepNum))
                 return True
             else:
                 return False
@@ -205,7 +233,7 @@ class HanMoveCracker(object):
                    'User-Agent': 'HanMoves/2.16 CFNetwork/887 Darwin/17.0.0',
                    'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9',
                    'auth': self.auth, 'Connection': 'keep-alive'}
-        datas = {'S1': self.RunId, 'S2': 'tppp', 'S3': self.distanceCode, 'S4': self.runningTimeCode,
+        datas = {'S1': self.RunId, 'S2': self.scoreCode, 'S3': self.distanceCode, 'S4': self.runningTimeCode,
                  'S5': self.distanceCode, 'S6': '', 'S7': '1', 'S8': 'pqwertyuio', 'S9': self.stepNumCode}
         print('\nTry uploading data...Status: ', end='')
         try:
@@ -225,6 +253,8 @@ class HanMoveCracker(object):
 
 
 doRefresh = True
+uploadNow = False
+score = ''
 distance = ''
 runningTime = ''
 stepNum = ''
@@ -235,21 +265,30 @@ fieldCode = input('选择场地（1.桂园田径场 2.九一二操场 3.工学�
 if input('是否随机生成跑步参数（1.是 2.否）: ') == '2':
     doRefresh = False
     distance = input('跑步里程（单位: 米 男2000 女1600）: ')
+    score = '5000' if distance == '2000' else '4000'
     runningTime = input('跑步时间（单位: 秒 0～1200）')
     stepNum = input('步数: ')
 
-HMC = HanMoveCracker(uuid, imei, distance, runningTime, stepNum, fieldCode)
+HMC = HanMoveCracker(uuid, imei, score, distance, runningTime, stepNum, fieldCode)
 
-if input('是否立即开始上传数据（1.是 2.否）: ') == '2':
-    HMC.Wait(7, random.randint(0, 15), random.randint(0, 59))
+if input('是否立即开始上传数据（1.是 2.否）: ') == '1':
+    uploadNow = True
 
 while True:
+    if uploadNow:
+        uploadNow = False
+    else:
+        HMC.Wait(7, random.randint(0, 15), random.randint(0, 59))
+
     if doRefresh:
         HMC.RefreshData()
 
     if HMC.GetToken():
         HMC.GetUsrInf(HMC.distance)
         HMC.GetSignReward()
+        if HMC.diamonds < 1:
+            if not HMC.BuyPower(5):
+                continue
         HMC.CreateAuth()
         HMC.EncodeData()
 
@@ -270,4 +309,3 @@ while True:
     else:
         print('\n获取token失败，请重试')
         break
-    HMC.Wait(7, random.randint(0, 15), random.randint(0, 59))
