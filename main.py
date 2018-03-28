@@ -80,7 +80,8 @@ class HanMoveCracker(object):
         delta = datetime.datetime.replace(datetime.datetime.now(), hour=hour, minute=minute,
                                           second=second) - datetime.datetime.now()
         if delta.total_seconds() > 0:
-            time_run = datetime.datetime.replace(datetime.datetime.now(), hour=hour, minute=minute, second=second)
+            time_run = datetime.datetime.replace(
+                datetime.datetime.now(), hour=hour, minute=minute, second=second)
         else:
             time_run = datetime.datetime.replace(datetime.datetime.now() + datetime.timedelta(days=1), hour=hour,
                                                  minute=minute, second=second)
@@ -95,7 +96,8 @@ class HanMoveCracker(object):
             elif delta.total_seconds() <= 1:
                 print('\rWaiting for next running...0 second left', end='')
             else:
-                print('\rWaiting for next running...' + str(int(delta.total_seconds())) + ' seconds left', end='    ')
+                print('\rWaiting for next running...' +
+                      str(int(delta.total_seconds())) + ' seconds left', end='    ')
             time.sleep(1)
 
     def GetToken(self):
@@ -151,10 +153,12 @@ class HanMoveCracker(object):
             json = response.json()
             print('Success' if json['Success'] else 'Failed')
             if json['Success']:
-                print('Diamond: ' + str(json['Data']['Diamond']) + '  Power: ' + str(json['Data']['Power']))
+                print('Diamond: ' + str(json['Data']['Diamond']
+                                        ) + '  Power: ' + str(json['Data']['Power']))
                 return True
             else:
-                print('Diamond not enough' if json['ErrCode'] == 6 else 'Unkonwn Error')
+                print(
+                    'Diamond not enough' if json['ErrCode'] == 6 else 'Unkonwn Error')
                 return False
         except:
             print('Connection lost')
@@ -195,8 +199,8 @@ class HanMoveCracker(object):
                     self.score = '5000' if self.distance == '2000' else '4000'
                 print('\nHello, ' + self.nickname + '  UserID: ' + self.UserID + '  Sex: ' + (
                     'male' if self.distance == '2000' else 'female') + '  Power: ' + self.power +
-                      '  Diamonds: ' + str(self.diamonds) + '  distance: ' + self.distance +
-                      'm  runningTime: ' + str(self.runningTime) + 's  stepNum: ' + str(self.stepNum))
+                    '  Diamonds: ' + str(self.diamonds) + '  distance: ' + self.distance +
+                    'm  runningTime: ' + str(self.runningTime) + 's  stepNum: ' + str(self.stepNum))
                 return True
             else:
                 return False
@@ -269,7 +273,8 @@ if input('是否随机生成跑步参数（1.是 2.否）: ') == '2':
     runningTime = input('跑步时间（单位: 秒 0～1200）')
     stepNum = input('步数: ')
 
-HMC = HanMoveCracker(uuid, imei, score, distance, runningTime, stepNum, fieldCode)
+HMC = HanMoveCracker(uuid, imei, score, distance,
+                     runningTime, stepNum, fieldCode)
 
 if input('是否立即开始上传数据（1.是 2.否）: ') == '1':
     uploadNow = True
