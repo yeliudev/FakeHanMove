@@ -10,7 +10,7 @@ import hashlib
 
 class HanMoveCracker(object):
 
-    def __init__(self, uuid, imei, score, distance, runningTime, stepNum, fieldCode):
+    def __init__(self, uuid, imei, fieldCode, score='', distance='', runningTime='', stepNum=''):
         self.uuid = uuid
         self.imei = imei
         self.UserID = 'unknown'
@@ -256,61 +256,70 @@ class HanMoveCracker(object):
             return False
 
 
-doRefresh = True
-uploadNow = False
-score = ''
-distance = ''
-runningTime = ''
-stepNum = ''
+def test_main():
+    HMC = HanMoveCracker('uuid', 'imei', '4')
+    assert HMC.uuid == 'uuid'
 
-uuid = input('UUID: ')
-imei = input('IMEI Code: ')
-fieldCode = input('选择场地（1.桂园田径场 2.九一二操场 3.工学部体育场 4.信息学部竹园田径场 5.医学部杏林田径场）: ')
-if input('是否随机生成跑步参数（1.是 2.否）: ') == '2':
-    doRefresh = False
-    distance = input('跑步里程（单位: 米 男2000 女1600）: ')
-    score = '5000' if distance == '2000' else '4000'
-    runningTime = input('跑步时间（单位: 秒 0～1200）')
-    stepNum = input('步数: ')
 
-HMC = HanMoveCracker(uuid, imei, score, distance,
-                     runningTime, stepNum, fieldCode)
+if __name__ == '__main__':
+    doRefresh = True
+    uploadNow = False
+    score = ''
+    distance = ''
+    runningTime = ''
+    stepNum = ''
 
-if input('是否立即开始上传数据（1.是 2.否）: ') == '1':
-    uploadNow = True
+    uuid = input('UUID: ')
+    imei = input('IMEI Code: ')
+    fieldCode = input(
+        '选择场地（1.桂园田径场 2.九一二操场 3.工学部体育场 4.信息学部竹园田径场 5.医学部杏林田径场）: ')
+    if input('是否随机生成跑步参数（1.是 2.否）: ') == '2':
+        doRefresh = False
+        distance = input('跑步里程（单位: 米 男2000 女1600）: ')
+        score = '5000' if distance == '2000' else '4000'
+        runningTime = input('跑步时间（单位: 秒 0～1200）')
+        stepNum = input('步数: ')
 
-while True:
-    if uploadNow:
-        uploadNow = False
-    else:
-        HMC.Wait(7, random.randint(0, 15), random.randint(0, 59))
+    HMC = HanMoveCracker(uuid, imei, fieldCode, score, distance,
+                         runningTime, stepNum)
 
-    if doRefresh:
-        HMC.RefreshData()
+    if input('是否立即开始上传数据（1.是 2.否）: ') == '1':
+        uploadNow = True
 
-    if HMC.GetToken():
-        HMC.GetUsrInf(HMC.distance)
-        HMC.GetSignReward()
-        if HMC.diamonds < 1:
-            if not HMC.BuyPower(5):
-                continue
-        HMC.CreateAuth()
-        HMC.EncodeData()
-
-        if HMC.StartRunning():
-            extraTime = random.randint(1, 3)
-            print('\n', end='')
-            for i in range(HMC.runningTime + extraTime):
-                if HMC.runningTime + extraTime - i > 1:
-                    print('\rWaiting for end of running...' + str(HMC.runningTime + extraTime - i) + ' seconds left   ',
-                          end='')
-                else:
-                    print('\rWaiting for end of running...1 second left ')
-                time.sleep(1)
-            HMC.StopRunning()
+    while True:
+        if uploadNow:
+            uploadNow = False
         else:
-            print('\n获取RunId失败，请重试')
+            HMC.Wait(7, random.randint(0, 15), random.randint(0, 59))
+
+        if doRefresh:
+            HMC.RefreshData()
+
+        if HMC.GetToken():
+            HMC.GetUsrInf(HMC.distance)
+            HMC.GetSignReward()
+
+            if HMC.diamonds < 1:
+                if not HMC.BuyPower(5):
+                    continue
+
+            HMC.CreateAuth()
+            HMC.EncodeData()
+
+            if HMC.StartRunning():
+                extraTime = random.randint(1, 3)
+                print('\n', end='')
+                for i in range(HMC.runningTime + extraTime):
+                    if HMC.runningTime + extraTime - i > 1:
+                        print('\rWaiting for end of running...' + str(HMC.runningTime + extraTime - i) + ' seconds left   ',
+                              end='')
+                    else:
+                        print('\rWaiting for end of running...1 second left ')
+                    time.sleep(1)
+                HMC.StopRunning()
+            else:
+                print('\n获取RunId失败，请重试')
+                break
+        else:
+            print('\n获取token失败，请重试')
             break
-    else:
-        print('\n获取token失败，请重试')
-        break
