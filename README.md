@@ -5,7 +5,7 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/goolhanrry/FakeHanMove.svg)
 [![GitHub repo size in bytes](https://img.shields.io/github/repo-size/goolhanrry/FakeHanMove.svg?colorB=ff7e00#)](https://github.com/goolhanrry/FakeHanMove)
 
-一个让你优雅地躺在床上跑完汉姆的小工具，感谢 [zyc199847](https://github.com/zyc199847) 的思路，随缘更新，欢迎添加我的微信：`aweawds` 交流讨论
+一个让你优雅地躺在床上跑完汉姆的小工具，感谢 [zyc199847](https://github.com/zyc199847) 的思路
 
 本工具仅供学习交流，因使用本工具而造成的一切不良后果由使用者自行承担，与作者无关
 
