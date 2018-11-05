@@ -1,5 +1,6 @@
 # FakeHanMove
 
+[![Travis](https://img.shields.io/travis/goolhanrry/FakeHanMove.svg)](https://www.travis-ci.org/goolhanrry/FakeHanMove)
 [![License](https://img.shields.io/badge/license-MIT-red.svg?colorB=D5283A#)](LICENSE)
 [![Language](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/)
 ![GitHub last commit](https://img.shields.io/github/last-commit/goolhanrry/FakeHanMove.svg)
