@@ -101,8 +101,8 @@ class HanMoveCracker(object):
             time.sleep(1)
 
     def GetToken(self):
-        url = 'http://client1.aipao.me/api/token/QM_Users/Login'
-        headers = {'Host': 'client1.aipao.me', 'Connection': 'keep-alive', 'Accept': '*/*', 'Version': 'B2.162',
+        url = 'http://client4.aipao.me/api/token/QM_Users/LoginSchool'
+        headers = {'Host': 'client4.aipao.me', 'Connection': 'keep-alive', 'Accept': '*/*', 'Version': 'B2.162',
                    'User-Agent': 'HanMoves/2.16 (iPhone; iOS 11.2.6; Scale/3.00)',
                    'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9', 'Accept-Ecoding': 'gzip, deflate'}
         data = {'IMEICode': self.imei}
@@ -122,8 +122,8 @@ class HanMoveCracker(object):
             return False
 
     def GetSignReward(self):
-        url = 'http://client1.aipao.me/api/' + self.token + '/QM_Users/GetSignReward'
-        headers = {'Host': 'client1.aipao.me', 'Accept': '*/*',
+        url = 'http://client4.aipao.me/api/' + self.token + '/QM_Users/GetSignReward'
+        headers = {'Host': 'client4.aipao.me', 'Accept': '*/*',
                    'User-Agent': 'HanMoves/2.16 (iPhone; iOS 11.2.6; Scale/3.00)',
                    'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9',
                    'Accept-Ecoding': 'gzip, deflate', 'Connection': 'keep-alive'}
@@ -141,8 +141,8 @@ class HanMoveCracker(object):
             return False
 
     def BuyPower(self, numOfDiamonds):
-        url = 'http://client1.aipao.me/api/' + self.token + '/QM_User_Static/BuyPower'
-        headers = {'Host': 'client1.aipao.me', 'Accept': '*/*',
+        url = 'http://client4.aipao.me/api/' + self.token + '/QM_User_Static/BuyPower'
+        headers = {'Host': 'client4.aipao.me', 'Accept': '*/*',
                    'User-Agent': 'HanMoves/2.16 (iPhone; iOS 11.2.6; Scale/3.00)',
                    'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9',
                    'Accept-Ecoding': 'gzip, deflate', 'Connection': 'keep-alive'}
@@ -172,6 +172,7 @@ class HanMoveCracker(object):
             code = hl.hexdigest().upper() + ':' + self.token
             hl.update(code.encode(encoding='utf-8'))
             self.auth = 'B' + hl.hexdigest().upper()
+            self.sign = self.auth
             print('Success\nauth: ' + self.auth)
             return True
         except:
@@ -179,8 +180,8 @@ class HanMoveCracker(object):
             return False
 
     def GetUsrInf(self, hasDistance=False):
-        url = 'http://client1.aipao.me/api/' + self.token + '/QM_Users/GLIBU'
-        headers = {'Host': 'client1.aipao.me', 'Accept': '*/*',
+        url = 'http://client4.aipao.me/api/' + self.token + '/QM_Users/GS'
+        headers = {'Host': 'client4.aipao.me', 'Accept': '*/*',
                    'User-Agent': 'HanMoves/2.16 (iPhone; iOS 11.2.6; Scale/3.00)',
                    'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9',
                    'Accept-Ecoding': 'gzip, deflate', 'Connection': 'keep-alive'}
@@ -192,14 +193,11 @@ class HanMoveCracker(object):
             if json['Success']:
                 self.UserID = str(json['Data']['User']['UserID'])
                 self.nickname = json['Data']['User']['NickName']
-                self.power = str(json['Data']['UserStatic']['Powers'])
-                self.diamonds = json['Data']['UserStatic']['Diamonds']
                 if not hasDistance:
-                    self.distance = '2000' if json['Data']['User']['Sex'] == '1' else '1600'
+                    self.distance = '2000' if json['Data']['User']['Sex'] == '男' else '1600'
                     self.score = '5000' if self.distance == '2000' else '4000'
                 print('\nHello, ' + self.nickname + '  UserID: ' + self.UserID + '  Sex: ' + (
-                    'male' if self.distance == '2000' else 'female') + '  Power: ' + self.power +
-                    '  Diamonds: ' + str(self.diamonds) + '  distance: ' + self.distance +
+                    'male' if self.distance == '2000' else 'female') + '  distance: ' + self.distance +
                     'm  runningTime: ' + str(self.runningTime) + 's  stepNum: ' + str(self.stepNum))
                 return True
             else:
@@ -209,13 +207,13 @@ class HanMoveCracker(object):
             return False
 
     def StartRunning(self):
-        url = 'http://client1.aipao.me/api/' + self.token + '/QM_Runs/startRunForSchool'
-        headers = {'Host': 'client1.aipao.me', 'Accept': '*/*',
+        url = 'http://client4.aipao.me/api/' + self.token + '/QM_Runs/SRS'
+        headers = {'Host': 'client4.aipao.me', 'Accept': '*/*',
                    'User-Agent': 'HanMoves/2.16 (iPhone; iOS 11.2.6; Scale/3.00)',
-                   'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9',
+                   'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9', 'auth': self.auth, 'sign': self.sign,
                    'Accept-Ecoding': 'gzip, deflate', 'Connection': 'keep-alive'}
-        datas = {'Lat': self.location[0], 'Lng': self.location[1], 'RunType': '1', 'RunMode': '1', 'FUserId': '0',
-                 'Level_Length': '2000', 'IsSchool': '1'}
+        datas = {'S1': self.location[0],
+                 'S2': self.location[1], 'S3': self.distance}
         print('\nTry getting RunId...Status: ', end='')
         try:
             response = requests.get(url, params=datas, headers=headers)
@@ -232,11 +230,11 @@ class HanMoveCracker(object):
             return False
 
     def StopRunning(self):
-        url = 'http://client1.aipao.me/api/' + self.token + '/QM_Runs/EndRunForSchool'
-        headers = {'Host': 'client1.aipao.me', 'Accept-Ecoding': 'gzip, deflate', 'Accept': '*/*',
+        url = 'http://client4.aipao.me/api/' + self.token + '/QM_Runs/ES'
+        headers = {'Host': 'client4.aipao.me', 'Accept-Ecoding': 'gzip, deflate', 'Accept': '*/*',
                    'User-Agent': 'HanMoves/2.16 CFNetwork/887 Darwin/17.0.0',
                    'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9',
-                   'auth': self.auth, 'Connection': 'keep-alive'}
+                   'auth': self.auth, 'sign': self.sign, 'Connection': 'keep-alive'}
         datas = {'S1': self.RunId, 'S2': self.scoreCode, 'S3': self.distanceCode, 'S4': self.runningTimeCode,
                  'S5': self.distanceCode, 'S6': '', 'S7': '1', 'S8': 'pqwertyuio', 'S9': self.stepNumCode}
         print('\nTry uploading data...Status: ', end='')
@@ -297,11 +295,11 @@ if __name__ == '__main__':
 
         if HMC.GetToken():
             HMC.GetUsrInf(HMC.distance)
-            HMC.GetSignReward()
+            # HMC.GetSignReward()
 
-            if HMC.diamonds < 1:
-                if not HMC.BuyPower(5):
-                    continue
+            # if HMC.diamonds < 1:
+            #     if not HMC.BuyPower(5):
+            #         continue
 
             HMC.CreateAuth()
             HMC.EncodeData()
