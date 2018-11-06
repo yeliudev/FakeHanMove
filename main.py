@@ -67,41 +67,34 @@ class HanMoveCracker(object):
     def GetToken(self):
         print('\nTry getting token...Status: ', end='')
         url = API_ROOT + 'token/QM_Users/LoginSchool'
-        data = {'IMEICode': self.imei}
-        try:
-            res = requests.get(url, params=data, headers=self.header).json()
-            print('Success' if res['Success'] else 'Failed')
 
-            if res['Success']:
-                self.token = res['Data']['Token']
-                print('Token: %s' % res['Data']['Token'])
-            else:
-                exit('Token not found')
-        except:
-            print('Connection lost')
-            exit('Token not found')
+        res = requests.get(url, params={'IMEICode': self.imei}, headers=self.header).json()
+        print('Success' if res['Success'] else 'Failed')
+
+        if res['Success']:
+            self.token = res['Data']['Token']
+            print('Token: %s' % res['Data']['Token'])
+        else:
+            exit('\nError: Token not found')
 
     def GetUsrInf(self):
         print('\nTry getting user information...Status: ', end='')
         url = API_ROOT + self.token + '/QM_Users/GS'
-        try:
-            res = requests.get(url, headers=self.header).json()
-            print('Success' if res['Success'] else 'Failed')
 
-            if res['Success']:
-                self.userId = str(res['Data']['User']['UserID'])
-                self.nickname = res['Data']['User']['NickName']
+        res = requests.get(url, headers=self.header).json()
+        print('Success' if res['Success'] else 'Failed')
 
-                if not self.distance:
-                    self.distance = '2000' if res['Data']['User']['Sex'] == '男' else '1600'
+        if res['Success']:
+            self.userId = str(res['Data']['User']['UserID'])
+            self.nickname = res['Data']['User']['NickName']
 
-                print('\nHello, %s  UserID: %s  Sex: %s  distance: %s  runningTime: %ss  stepNum: %s' % (self.nickname, self.userId, (
-                    'male' if self.distance == '2000' else 'female'), self.distance, self.runningTime, self.stepNum))
-            else:
-                exit('User information not found')
-        except:
-            print('Connection lost')
-            exit('User information not found')
+            if not self.distance:
+                self.distance = '2000' if res['Data']['User']['Sex'] == '男' else '1600'
+
+            print('\nHello, %s  UserID: %s  Sex: %s  distance: %s  runningTime: %ss  stepNum: %s' % (self.nickname, self.userId, (
+                'male' if self.distance == '2000' else 'female'), self.distance, self.runningTime, self.stepNum))
+        else:
+            exit('\nError: User information not found')
 
     def SignData(self):
         print('\nTry signing data...Status: ', end='')
@@ -116,7 +109,7 @@ class HanMoveCracker(object):
             print('Sign: %s' % self.header['sign'])
         except:
             print('Failed')
-            exit('Sign error')
+            exit('\nError: Sign error')
 
     def RefreshData(self):
         self.runningTime = str(random.randint(540, 1020))
@@ -138,45 +131,38 @@ class HanMoveCracker(object):
             print('\n----------------------------------------------------------------')
         except:
             print('Failed')
-            exit('Encode data error')
+            exit('\nError: Encode data error')
 
     def StartRunning(self):
-        url = API_ROOT + self.token + '/QM_Runs/SRS'
-        datas = {'S1': self.location[0],
-                 'S2': self.location[1],
-                 'S3': self.distance}
         print('\nTry getting RunId...Status: ', end='')
-        try:
-            res = requests.get(url, params=datas, headers=self.header).json()
-            print('Success' if res['Success'] else 'Failed')
+        url = API_ROOT + self.token + '/QM_Runs/SRS'
+        data = {'S1': self.location[0],
+                'S2': self.location[1],
+                'S3': self.distance}
 
-            if res['Success']:
-                self.RunId = res['Data']['RunId']
-                print('RunId: %s\n' % res['Data']['RunId'])
-            else:
-                exit('Start running error')
-        except:
-            print('Connection lost')
-            exit('Start running error')
+        res = requests.get(url, params=data, headers=self.header).json()
+        print('Success' if res['Success'] else 'Failed')
+
+        if res['Success']:
+            self.RunId = res['Data']['RunId']
+            print('RunId: %s\n' % res['Data']['RunId'])
+        else:
+            exit('\nError: Start running error')
 
     def StopRunning(self):
         print('\nTry uploading data...Status: ', end='')
         url = API_ROOT + self.token + '/QM_Runs/ES'
-        datas = {'S1': self.RunId, 'S2': self.scoreCode, 'S3': self.distanceCode, 'S4': self.runningTimeCode,
-                 'S5': self.distanceCode, 'S6': '', 'S7': '1', 'S8': 'pqwertyuio', 'S9': self.stepNumCode}
-        try:
-            res = requests.get(url, params=datas, headers=self.header).json()
-            print('Success' if res['Success'] else 'Failed')
+        data = {'S1': self.RunId, 'S2': self.scoreCode, 'S3': self.distanceCode, 'S4': self.runningTimeCode,
+                'S5': self.distanceCode, 'S6': '', 'S7': '1', 'S8': 'pqwertyuio', 'S9': self.stepNumCode}
 
-            if res['Success']:
-                print('\n跑步数据成功上传，请登录阳光体育服务平台查询结果')
-            else:
-                print(res)
-                print('\n跑步数据上传失败，请重试')
-                exit('End running error')
-        except:
-            print('Connection lost')
-            exit('End running error')
+        res = requests.get(url, params=data, headers=self.header).json()
+        print('Success' if res['Success'] else 'Failed')
+
+        if res['Success']:
+            print('\n跑步数据成功上传，请登录阳光体育服务平台查询结果')
+        else:
+            print('\n跑步数据上传失败，请重试')
+            exit('\nError: End running error')
 
 
 def test_main():
