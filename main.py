@@ -1,33 +1,34 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+# ********************************************
+# HanMove Cracker v2
+# for Wuhan University
+# By Ye Liu
+# Nov 6 2018
+# ********************************************
+
 import requests
 import datetime
 import time
 import random
 import hashlib
 
+API_ROOT = 'http://client4.aipao.me/api/'
+
 
 class HanMoveCracker(object):
 
-    def __init__(self, uuid, imei, fieldCode, score='', distance='', runningTime='', stepNum=''):
+    def __init__(self, uuid, imei, fieldCode, distance, runningTime, stepNum):
         self.uuid = uuid
         self.imei = imei
-        self.UserID = 'unknown'
-        self.nickname = 'unknown'
-        self.power = 'unknown'
-        self.diamonds = 0
-        self.score = score
         self.distance = distance
-        self.runningTime = int(runningTime) if runningTime else ''
-        self.stepNum = int(stepNum) if stepNum else ''
-        self.auth = ''
-        self.token = ''
-        self.RunId = ''
-        self.scoreCode = ''
-        self.distanceCode = ''
-        self.runningTimeCode = ''
-        self.stepNumCode = ''
+        self.runningTime = runningTime
+        self.stepNum = stepNum
+        self.doRefresh = not distance
+
+        self.header = {'Auth': None, 'nonce': None, 'timespan': None, 'sign': None, 'version': '2.11',
+                       'Accept': None, 'User-Agent': None, 'Accept-Encoding': None, 'Connection': 'Keep-Alive'}
 
         if fieldCode == '1':
             self.location = ['30.544342', '114.366888']  # 桂园田径场
@@ -37,252 +38,172 @@ class HanMoveCracker(object):
             self.location = ['30.549832', '114.374182']  # 工学部体育场
         if fieldCode == '4':
             self.location = ['30.534084', '114.367382']  # 信息学部竹园田径场
-        if fieldCode == '5':
+        else:
             self.location = ['30.561585', '114.359509']  # 医学部杏林田径场
 
-    def RefreshData(self):
-        self.runningTime = random.randint(540, 1020)
-        self.stepNum = random.randint(1400, 3500)
-
-    def EncodeData(self):
-        print('\nEncoding data...')
-        self.scoreCode = ''.join(map(self.enc, self.score))
-        self.distanceCode = ''.join(map(self.enc, self.distance))
-        self.runningTimeCode = ''.join(map(self.enc, str(self.runningTime)))
-        self.stepNumCode = ''.join(map(self.enc, str(self.stepNum)))
-        print('pwd_table: ' + '\'pqwertyuio\'' + ' scoreCode: \'' + self.scoreCode + '\'' +
-              ' distanceCode: \'' + self.distanceCode + '\'' + ' runningTimeCode: \'' + self.runningTimeCode +
-              '\'' + ' stepNumCode: \'' + self.stepNumCode + '\'' + ' location: ' + str(self.location))
+    def MD5(self, s):
+        return hashlib.md5(s.encode()).hexdigest()
 
     def enc(self, x):
-        if x == '0':
-            return 'p'
-        if x == '1':
-            return 'q'
-        if x == '2':
-            return 'w'
-        if x == '3':
-            return 'e'
-        if x == '4':
-            return 'r'
-        if x == '5':
-            return 't'
-        if x == '6':
-            return 'y'
-        if x == '7':
-            return 'u'
-        if x == '8':
-            return 'i'
-        if x == '9':
-            return 'o'
+        dict = {'0': 'p', '1': 'q', '2': 'w', '3': 'e', '4': 'r', '5': 't', '6': 'y', '7': 'u', '8': 'i', '9': 'o'}
+        return dict[x]
 
     def Wait(self, hour, minute, second):
-        delta = datetime.datetime.replace(datetime.datetime.now(), hour=hour, minute=minute,
-                                          second=second) - datetime.datetime.now()
+        delta = datetime.datetime.replace(datetime.datetime.now(), hour=hour, minute=minute, second=second) - datetime.datetime.now()
         if delta.total_seconds() > 0:
-            time_run = datetime.datetime.replace(
-                datetime.datetime.now(), hour=hour, minute=minute, second=second)
+            time_run = datetime.datetime.replace(datetime.datetime.now(), hour=hour, minute=minute, second=second)
         else:
-            time_run = datetime.datetime.replace(datetime.datetime.now() + datetime.timedelta(days=1), hour=hour,
-                                                 minute=minute, second=second)
+            time_run = datetime.datetime.replace(datetime.datetime.now() + datetime.timedelta(days=1), hour=hour, minute=minute, second=second)
         print('')
         while True:
             delta = time_run - datetime.datetime.now()
-            if delta.total_seconds() <= 0:
-                print('\n', end='')
-                break
-            elif delta.total_seconds() > 1 and delta.total_seconds() <= 2:
-                print('\rWaiting for next running...1 second left', end=' ')
-            elif delta.total_seconds() <= 1:
-                print('\rWaiting for next running...0 second left', end='')
+            if delta.total_seconds() > 0:
+                print('\rWaiting for next running...' + str(int(delta.total_seconds())) + 's left', end='')
             else:
-                print('\rWaiting for next running...' +
-                      str(int(delta.total_seconds())) + ' seconds left', end='    ')
+                print('')
+                break
             time.sleep(1)
 
     def GetToken(self):
-        url = 'http://client4.aipao.me/api/token/QM_Users/LoginSchool'
-        headers = {'Host': 'client4.aipao.me', 'Connection': 'keep-alive', 'Accept': '*/*', 'Version': 'B2.162',
-                   'User-Agent': 'HanMoves/2.16 (iPhone; iOS 11.2.6; Scale/3.00)',
-                   'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9', 'Accept-Ecoding': 'gzip, deflate'}
-        data = {'IMEICode': self.imei}
         print('\nTry getting token...Status: ', end='')
+        url = API_ROOT + 'token/QM_Users/LoginSchool'
+        data = {'IMEICode': self.imei}
         try:
-            response = requests.get(url, params=data, headers=headers)
-            json = response.json()
-            print('Success' if json['Success'] else 'Failed')
-            if json['Success']:
-                print('Token: ' + json['Data']['Token'])
-                self.token = json['Data']['Token']
-                return True
+            res = requests.get(url, params=data, headers=self.header).json()
+            print('Success' if res['Success'] else 'Failed')
+
+            if res['Success']:
+                self.token = res['Data']['Token']
+                print('Token: %s' % res['Data']['Token'])
             else:
-                return False
+                exit('Token not found')
         except:
             print('Connection lost')
-            return False
+            exit('Token not found')
 
-    def GetSignReward(self):
-        url = 'http://client4.aipao.me/api/' + self.token + '/QM_Users/GetSignReward'
-        headers = {'Host': 'client4.aipao.me', 'Accept': '*/*',
-                   'User-Agent': 'HanMoves/2.16 (iPhone; iOS 11.2.6; Scale/3.00)',
-                   'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9',
-                   'Accept-Ecoding': 'gzip, deflate', 'Connection': 'keep-alive'}
-        print('\nTry getting sign reward...Status: ', end='')
+    def GetUsrInf(self):
+        print('\nTry getting user information...Status: ', end='')
+        url = API_ROOT + self.token + '/QM_Users/GS'
         try:
-            response = requests.get(url, headers=headers)
-            json = response.json()
-            print('Success' if json['Success'] else 'Failed')
-            if json['Success']:
-                return True
+            res = requests.get(url, headers=self.header).json()
+            print('Success' if res['Success'] else 'Failed')
+
+            if res['Success']:
+                self.userId = str(res['Data']['User']['UserID'])
+                self.nickname = res['Data']['User']['NickName']
+
+                if not self.distance:
+                    self.distance = '2000' if res['Data']['User']['Sex'] == '男' else '1600'
+
+                print('\nHello, %s  UserID: %s  Sex: %s  distance: %s  runningTime: %ss  stepNum: %s' % (self.nickname, self.userId, (
+                    'male' if self.distance == '2000' else 'female'), self.distance, self.runningTime, self.stepNum))
             else:
-                return False
+                exit('User information not found')
         except:
             print('Connection lost')
-            return False
+            exit('User information not found')
 
-    def BuyPower(self, numOfDiamonds):
-        url = 'http://client4.aipao.me/api/' + self.token + '/QM_User_Static/BuyPower'
-        headers = {'Host': 'client4.aipao.me', 'Accept': '*/*',
-                   'User-Agent': 'HanMoves/2.16 (iPhone; iOS 11.2.6; Scale/3.00)',
-                   'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9',
-                   'Accept-Ecoding': 'gzip, deflate', 'Connection': 'keep-alive'}
-        data = {'Power': str(numOfDiamonds)}
-        print('\nTry buying power...Status: ', end='')
+    def SignData(self):
+        print('\nTry signing data...Status: ', end='')
         try:
-            response = requests.get(url, params=data, headers=headers)
-            json = response.json()
-            print('Success' if json['Success'] else 'Failed')
-            if json['Success']:
-                print('Diamond: ' + str(json['Data']['Diamond']
-                                        ) + '  Power: ' + str(json['Data']['Power']))
-                return True
-            else:
-                print(
-                    'Diamond not enough' if json['ErrCode'] == 6 else 'Unkonwn Error')
-                return False
-        except:
-            print('Connection lost')
-            return False
+            self.header['timespan'] = str(time.time()).replace('.', '')[:13]
+            self.header['nonce'] = str(random.randint(100000, 10000000))
+            self.header['auth'] = 'B' + self.MD5(self.MD5(self.imei)) + ':;' + self.token
+            self.header['sign'] = self.MD5(self.token + self.header['nonce'] + self.header['timespan'] + self.userId).upper()
 
-    def CreateAuth(self):
-        print('\nTry creating auth...Status: ', end='')
-        try:
-            hl = hashlib.md5()
-            hl.update(self.uuid.encode(encoding='utf-8'))
-            code = hl.hexdigest().upper() + ':' + self.token
-            hl.update(code.encode(encoding='utf-8'))
-            self.auth = 'B' + hl.hexdigest().upper()
-            self.sign = self.auth
-            print('Success\nauth: ' + self.auth)
-            return True
+            print('Success')
+            print('Auth: %s' % self.header['auth'])
+            print('Sign: %s' % self.header['sign'])
         except:
             print('Failed')
-            return False
+            exit('Sign error')
 
-    def GetUsrInf(self, hasDistance=False):
-        url = 'http://client4.aipao.me/api/' + self.token + '/QM_Users/GS'
-        headers = {'Host': 'client4.aipao.me', 'Accept': '*/*',
-                   'User-Agent': 'HanMoves/2.16 (iPhone; iOS 11.2.6; Scale/3.00)',
-                   'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9',
-                   'Accept-Ecoding': 'gzip, deflate', 'Connection': 'keep-alive'}
-        print('\nTry getting user information...Status: ', end='')
+    def RefreshData(self):
+        self.runningTime = str(random.randint(540, 1020))
+        self.stepNum = str(random.randint(1400, 3500))
+
+    def EncodeData(self):
+        print('\nTry encoding data...Status: ', end='')
         try:
-            response = requests.get(url, headers=headers)
-            json = response.json()
-            print('Success' if json['Success'] else 'Failed')
-            if json['Success']:
-                self.UserID = str(json['Data']['User']['UserID'])
-                self.nickname = json['Data']['User']['NickName']
-                if not hasDistance:
-                    self.distance = '2000' if json['Data']['User']['Sex'] == '男' else '1600'
-                    self.score = '5000' if self.distance == '2000' else '4000'
-                print('\nHello, ' + self.nickname + '  UserID: ' + self.UserID + '  Sex: ' + (
-                    'male' if self.distance == '2000' else 'female') + '  distance: ' + self.distance +
-                    'm  runningTime: ' + str(self.runningTime) + 's  stepNum: ' + str(self.stepNum))
-                return True
-            else:
-                return False
+            self.scoreCode = ''.join(map(self.enc, '5000' if self.distance == '2000' else '4000'))
+            self.distanceCode = ''.join(map(self.enc, self.distance))
+            self.runningTimeCode = ''.join(map(self.enc, self.runningTime))
+            self.stepNumCode = ''.join(map(self.enc, self.stepNum))
+            print('Success')
+            print('\n------------------------- Encoded data -------------------------')
+            print('\n%-25s %-25s\n%-25s %-25s\n%-25s %-25s' %
+                  ("pwd_table: 'pqwertyuio'", "scoreCode: '%s'" % (self.scoreCode),
+                   "distanceCode: '%s'" % (self.distanceCode), "runningTimeCode: '%s'" % (self.runningTimeCode),
+                   "stepNumCode: '%s'" % (self.stepNumCode), "location: %s" % (str(self.location))))
+            print('\n----------------------------------------------------------------')
         except:
-            print('Connection lost')
-            return False
+            print('Failed')
+            exit('Encode data error')
 
     def StartRunning(self):
-        url = 'http://client4.aipao.me/api/' + self.token + '/QM_Runs/SRS'
-        headers = {'Host': 'client4.aipao.me', 'Accept': '*/*',
-                   'User-Agent': 'HanMoves/2.16 (iPhone; iOS 11.2.6; Scale/3.00)',
-                   'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9', 'auth': self.auth, 'sign': self.sign,
-                   'Accept-Ecoding': 'gzip, deflate', 'Connection': 'keep-alive'}
+        url = API_ROOT + self.token + '/QM_Runs/SRS'
         datas = {'S1': self.location[0],
-                 'S2': self.location[1], 'S3': self.distance}
+                 'S2': self.location[1],
+                 'S3': self.distance}
         print('\nTry getting RunId...Status: ', end='')
         try:
-            response = requests.get(url, params=datas, headers=headers)
-            json = response.json()
-            print('Success' if json['Success'] else 'Failed')
-            if json['Success']:
-                print('RunId: ' + json['Data']['RunId'])
-                self.RunId = json['Data']['RunId']
-                return True
+            res = requests.get(url, params=datas, headers=self.header).json()
+            print('Success' if res['Success'] else 'Failed')
+
+            if res['Success']:
+                self.RunId = res['Data']['RunId']
+                print('RunId: %s\n' % res['Data']['RunId'])
             else:
-                return False
+                exit('Start running error')
         except:
             print('Connection lost')
-            return False
+            exit('Start running error')
 
     def StopRunning(self):
-        url = 'http://client4.aipao.me/api/' + self.token + '/QM_Runs/ES'
-        headers = {'Host': 'client4.aipao.me', 'Accept-Ecoding': 'gzip, deflate', 'Accept': '*/*',
-                   'User-Agent': 'HanMoves/2.16 CFNetwork/887 Darwin/17.0.0',
-                   'Accept-Language': 'zh-Hans-CN;q=1, en-CN;q=0.9',
-                   'auth': self.auth, 'sign': self.sign, 'Connection': 'keep-alive'}
+        print('\nTry uploading data...Status: ', end='')
+        url = API_ROOT + self.token + '/QM_Runs/ES'
         datas = {'S1': self.RunId, 'S2': self.scoreCode, 'S3': self.distanceCode, 'S4': self.runningTimeCode,
                  'S5': self.distanceCode, 'S6': '', 'S7': '1', 'S8': 'pqwertyuio', 'S9': self.stepNumCode}
-        print('\nTry uploading data...Status: ', end='')
         try:
-            response = requests.get(url, params=datas, headers=headers)
-            json = response.json()
-            print('Success' if json['Success'] else 'Failed')
-            if json['Success']:
+            res = requests.get(url, params=datas, headers=self.header).json()
+            print('Success' if res['Success'] else 'Failed')
+
+            if res['Success']:
                 print('\n跑步数据成功上传，请登录阳光体育服务平台查询结果')
-                return True
             else:
-                print(json)
+                print(res)
                 print('\n跑步数据上传失败，请重试')
-                return False
+                exit('End running error')
         except:
             print('Connection lost')
-            return False
+            exit('End running error')
 
 
 def test_main():
-    HMC = HanMoveCracker('uuid', 'imei', '4')
+    HMC = HanMoveCracker('uuid', None, None, None, None, None)
     assert HMC.uuid == 'uuid'
 
 
 if __name__ == '__main__':
-    doRefresh = True
-    uploadNow = False
-    score = ''
-    distance = ''
-    runningTime = ''
-    stepNum = ''
+    print('\n---------------- Han Move Cracker by goolhanrry ----------------\n')
 
     uuid = input('UUID: ')
     imei = input('IMEI Code: ')
-    fieldCode = input(
-        '选择场地（1.桂园田径场 2.九一二操场 3.工学部体育场 4.信息学部竹园田径场 5.医学部杏林田径场）: ')
-    if input('是否随机生成跑步参数（1.是 2.否）: ') == '2':
-        doRefresh = False
+
+    fieldCode = input('\n选择场地（1.桂园田径场 2.九一二操场 3.工学部体育场 4.信息学部竹园田径场 5.医学部杏林田径场）: ')
+
+    if input('是否自动生成跑步参数（1.是 2.否）: ') == '1':
+        distance = None
+        runningTime = None
+        stepNum = None
+    else:
         distance = input('跑步里程（单位: 米 男2000 女1600）: ')
-        score = '5000' if distance == '2000' else '4000'
         runningTime = input('跑步时间（单位: 秒 0～1200）')
         stepNum = input('步数: ')
 
-    HMC = HanMoveCracker(uuid, imei, fieldCode, score, distance,
-                         runningTime, stepNum)
+    uploadNow = input('是否立即开始上传数据（1.是 2.否）: ') == '1'
 
-    if input('是否立即开始上传数据（1.是 2.否）: ') == '1':
-        uploadNow = True
+    HMC = HanMoveCracker(uuid, imei, fieldCode, distance, runningTime, stepNum)
 
     while True:
         if uploadNow:
@@ -290,34 +211,19 @@ if __name__ == '__main__':
         else:
             HMC.Wait(7, random.randint(0, 15), random.randint(0, 59))
 
-        if doRefresh:
+        HMC.GetToken()
+        HMC.GetUsrInf()
+
+        if HMC.doRefresh:
             HMC.RefreshData()
 
-        if HMC.GetToken():
-            HMC.GetUsrInf(HMC.distance)
-            # HMC.GetSignReward()
+        HMC.EncodeData()
+        HMC.SignData()
+        HMC.StartRunning()
 
-            # if HMC.diamonds < 1:
-            #     if not HMC.BuyPower(5):
-            #         continue
+        extraTime = random.randint(1, 3)
+        for i in range(int(HMC.runningTime) + extraTime):
+            print('\rWaiting for end of running...' + str(int(HMC.runningTime) + extraTime - i) + 's left', end='')
+            time.sleep(1)
 
-            HMC.CreateAuth()
-            HMC.EncodeData()
-
-            if HMC.StartRunning():
-                extraTime = random.randint(1, 3)
-                print('\n', end='')
-                for i in range(HMC.runningTime + extraTime):
-                    if HMC.runningTime + extraTime - i > 1:
-                        print('\rWaiting for end of running...' + str(HMC.runningTime + extraTime - i) + ' seconds left   ',
-                              end='')
-                    else:
-                        print('\rWaiting for end of running...1 second left ')
-                    time.sleep(1)
-                HMC.StopRunning()
-            else:
-                print('\n获取RunId失败，请重试')
-                break
-        else:
-            print('\n获取token失败，请重试')
-            break
+        HMC.StopRunning()
