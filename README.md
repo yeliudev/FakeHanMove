@@ -1,9 +1,9 @@
 # FakeHanMove
 
-[![Travis](https://img.shields.io/travis/goolhanrry/FakeHanMove.svg)](https://www.travis-ci.org/goolhanrry/FakeHanMove)
+[![Travis](https://img.shields.io/travis/c1aris/FakeHanMove.svg)](https://www.travis-ci.org/c1aris/FakeHanMove)
 [![License](https://img.shields.io/badge/license-MIT-red.svg?colorB=D5283A#)](LICENSE)
 [![Language](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/)
-[![GitHub last commit](https://img.shields.io/github/last-commit/goolhanrry/FakeHanMove.svg)](https://github.com/goolhanrry/FakeHanMove/commits/master)
+[![GitHub last commit](https://img.shields.io/github/last-commit/c1aris/FakeHanMove.svg)](https://github.com/c1aris/FakeHanMove/commits/master)
 
 一个让你优雅地躺在床上跑完汉姆的小工具，感谢 [zyc199847](https://github.com/zyc199847) 和 [李叶](https://github.com/HackerLiye) 的思路
 
@@ -46,5 +46,5 @@
 ## 软件截图
 
 <p align="center">
-  <img with="850" height="580" src="https://github.com/goolhanrry/FakeHanMove/blob/master/Screenshot/FakeHanMove_Screenshot.png" alt="screenshot">
+  <img with="850" height="580" src="https://github.com/c1aris/FakeHanMove/blob/master/Screenshot/FakeHanMove_Screenshot.png" alt="screenshot">
 </p>
