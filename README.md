@@ -46,5 +46,5 @@
 ## 软件截图
 
 <p align="center">
-  <img with="850" height="580" src="https://github.com/c1aris/FakeHanMove/blob/master/Screenshot/FakeHanMove_Screenshot.png" alt="screenshot">
+  <img with="850" height="580" src="assets/screenshot.png" alt="screenshot">
 </p>

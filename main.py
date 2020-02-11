@@ -171,7 +171,7 @@ def test_main():
 
 
 if __name__ == '__main__':
-    print('\n---------------- Han Move Cracker by goolhanrry ----------------\n')
+    print('\n---------------- Han Move Cracker by c1aris ----------------\n')
 
     uuid = input('UUID: ')
     imei = input('IMEI Code: ')
