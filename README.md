@@ -1,9 +1,7 @@
 # FakeHanMove
 
-[![Travis](https://img.shields.io/travis/c1aris/FakeHanMove.svg)](https://www.travis-ci.org/c1aris/FakeHanMove)
 [![License](https://img.shields.io/badge/license-MIT-red.svg?colorB=D5283A#)](LICENSE)
 [![Language](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/)
-[![GitHub last commit](https://img.shields.io/github/last-commit/c1aris/FakeHanMove.svg)](https://github.com/c1aris/FakeHanMove/commits/master)
 
 一个让你优雅地躺在床上跑完汉姆的小工具，感谢 [zyc199847](https://github.com/zyc199847) 和 [李叶](https://github.com/HackerLiye) 的思路
 
@@ -35,16 +33,16 @@
 
 ## 使用方法
 
- 1. 手机端打开汉姆运动，注销账号
- 2. 重新使用微信对汉姆运动授权，使用 Fiddler 或 Charles 等工具对此过程抓包，获取登录请求头中的 `IMEI` 字段和返回数据中的 `IMEICode` 字段
- 3. 配置 [Python3](https://www.python.org/) 运行环境 (已经配置好环境的可忽略此步骤)
- 4. Terminal 或 CMD 执行 `pip3 install requests` 安装 requests 库
- 5. 运行 `main.py` ，按提示输入相关参数，即可上传跑步数据
+1. 手机端打开汉姆运动，注销账号
+2. 重新使用微信对汉姆运动授权，使用 Fiddler 或 Charles 等工具对此过程抓包，获取登录请求头中的 `IMEI` 字段和返回数据中的 `IMEICode` 字段
+3. 配置 [Python3](https://www.python.org/) 运行环境
+4. Terminal 或 CMD 执行 `pip install requests` 安装 requests 库
+5. 运行 `main.py` ，按提示输入相关参数，即可上传跑步数据
  
- 注意：数据上传函数返回 `True` 不代表数据有效，请自行登录阳光体育服务平台查询数据有效性
+注意：数据上传函数返回 `True` 不代表数据有效，请自行登录阳光体育服务平台查询数据有效性
 
 ## 软件截图
 
 <p align="center">
-  <img with="850" height="580" src="assets/screenshot.png" alt="screenshot">
+  <img with="850" height="580" src=".github/screenshot.png" alt="screenshot">
 </p>
