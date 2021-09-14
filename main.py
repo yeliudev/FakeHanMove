@@ -7,7 +7,7 @@ import time
 
 import requests
 
-API_ROOT = 'http://client4.aipao.me/api/'
+API_ROOT = 'http://client3.aipao.me/api/'
 
 
 class HanMoveCracker(object):
