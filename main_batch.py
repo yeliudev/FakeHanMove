@@ -12,6 +12,8 @@ import csv
 # changed client4->client3
 API_ROOT = 'http://client3.aipao.me/api/'
 
+finished = []
+
 
 class HanMoveCracker(object):
 
@@ -22,6 +24,7 @@ class HanMoveCracker(object):
         self.runningTime: str = runningTime
         self.stepNum: str = stepNum
         self.doRefresh = not distance
+        self.task_name = None
 
         self.header = {
             'Auth': None,
@@ -126,11 +129,6 @@ class HanMoveCracker(object):
                 self.distance = '2000' if res['Data']['User'][
                                               'Sex'] == '男' else '1600'
 
-            # print(
-            #     '\nHello, %s  UserID: %s  Sex: %s  distance: %s  runningTime: %ss  stepNum: %s'  # noqa
-            #     % (self.nickname, self.userId,
-            #        ('male' if self.distance == '2000' else 'female'),
-            #        self.distance, self.runningTime, self.stepNum))
         else:
             exit('\nError: User information not found')
 
@@ -147,8 +145,7 @@ class HanMoveCracker(object):
                                            self.userId).upper()
 
             print('sign_data Success')
-            # print('Auth: %s' % self.header['auth'])
-            # print('Sign: %s' % self.header['sign'])
+
         except Exception:
             print('Failed')
             exit('\nError: Sign error')
@@ -166,18 +163,7 @@ class HanMoveCracker(object):
             self.runningTimeCode = ''.join(map(self.enc, self.runningTime))
             self.stepNumCode = ''.join(map(self.enc, self.stepNum))
             print('encode_data Success')
-            # print(
-            #     '\n------------------------- Encoded data -------------------------'  # noqa
-            # )
-            # print('\n%-25s %-25s\n%-25s %-25s\n%-25s %-25s' %
-            #       ("pwd_table: 'pqwertyuio'", "scoreCode: '%s'" %
-            #        (self.scoreCode), "distanceCode: '%s'" %
-            #        (self.distanceCode), "runningTimeCode: '%s'" %
-            #        (self.runningTimeCode), "stepNumCode: '%s'" %
-            #        (self.stepNumCode), "location: %s" % (str(self.location))))
-            # print(
-            #     '\n----------------------------------------------------------------'  # noqa
-            # )
+
         except Exception:
             print('Failed')
             exit('\nError: Encode data error')
@@ -218,10 +204,15 @@ class HanMoveCracker(object):
 
         res = requests.get(url, params=data, headers=self.header).json()
         print('stop_running Success' if res['Success'] else 'Failed')
+        finished.append(self.task_name)
 
-        if int(self.runningTime)==max(times):# 针对最后一个任务才能exit(0)
+        if int(self.runningTime) == max(times):  # 针对最后一个任务才能exit(0)
             if res['Success']:
+                print("finished:")
+                for i in finished:
+                    print(i)
                 print('\n全部跑步数据成功上传，请登录阳光体育服务平台查询结果。')
+
                 exit(0)
             else:
                 print('\n存在跑步数据上传失败。')
@@ -231,26 +222,10 @@ class HanMoveCracker(object):
 times = [0]  # 计时
 
 
-def single_mock(uuid_, imei_, fieldCode_):
-    # fieldCode = input(
-    #     '\n选择场地（1.桂园田径场 2.九一二操场 3.工学部体育场 4.信息学部竹园田径场 5.医学部杏林田径场）: ')
-
-    # if input('是否自动生成跑步参数（1.是 2.否）: ') == '1':
-    #     distance = None
-    #     runningTime = None
-    #     stepNum = None
-    # else:
-    #     # distance = input('跑步里程（单位: 米 男2000 女1600）: ')
-    #     distance = 2000
-    #
-    #     # runningTime = input('跑步时间（单位: 秒 0～1200）')
-    #     runningTime = 600
-    #
-    #     # stepNum = input('步数: ')
-    #     stepNum = 150
-    # uploadNow = input('是否立即开始上传数据（1.是 2.否）: ') == '1'
+def single_mock(uuid_, imei_, field_code_, task_name_):
     uploadNow = True
-    hmc = HanMoveCracker(uuid_, imei_, fieldCode_, None, None, None)
+    hmc = HanMoveCracker(uuid_, imei_, field_code_, None, None, None)
+    hmc.task_name = task_name_
 
     while True:
         if uploadNow:
@@ -283,20 +258,14 @@ def single_mock(uuid_, imei_, fieldCode_):
             print(e)
 
 
-# # 只测代码，没测数据
-# def test_main():
-#     hmc = HanMoveCracker('uuid', None, None, None, None, None)
-#     assert hmc.uuid == 'uuid'
-#     raise NotImplementedError()
-
-
 if __name__ == '__main__':
     with open('./accounts.txt') as f:
         lines = csv.DictReader(f)
         tasks = {}
         for line in lines:
             if line['enable'] == '1':
-                tasks[line['name']] = threading.Thread(target=single_mock, args=(line['uuid'], line['imei'], 4))
+                tasks[line['name']] = threading.Thread(target=single_mock,
+                                                       args=(line['uuid'], line['imei'], 4, line['name']))
                 print(f"{line['name']}'s task starting...")
                 tasks[line['name']].start()
         time.sleep(3)
